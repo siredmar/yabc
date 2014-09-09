@@ -1,3 +1,7 @@
+# Eagle Backup Files
+*.s#*
+*.b#*
+
 # Object files
 *.o
 *.ko
