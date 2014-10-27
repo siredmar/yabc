@@ -1,0 +1,73 @@
+Partlist
+
+Exported from yabc.brd at 10/14/14 1:30 PM
+
+EAGLE Version 6.6.0 Copyright (c) 1988-2014 CadSoft
+
+Assembly variant: 
+
+Part     Value          Package            Library        Position (mm)         Orientation
+
+C1       22p            C0603              rcl            (29.3 27.95)          MR315
+C2       22p            C0603              rcl            (27.5 29.77)          MR315
+C3       22p            C0603              rcl            (53.3 46.91)          R315
+C4       22p            C0603              rcl            (47.6 52.49)          R315
+C5                      C0805              rcl            (63.31 25.29)         MR0
+C6       47u            SANYO-OSCON_SMD_B6 rcl            (60.1 13.57)          MR270
+C7       100n           C0603              rcl            (40.5 30.08)          MR315
+C8       100n           C0603              rcl            (35.53 30)            MR225
+C9       100n           C0603              rcl            (3.42 38.4)           R0
+C10      100n           C0603              rcl            (50.37 95.7)          MR0
+C11      100n           C0603              rcl            (47.5 95.58)          MR90
+C12      100n           C0603              rcl            (34.9 40.23)          MR135
+H3/0     BC847ASMD      SOT23              transistor-npn (81.96 28.21)         MR180
+H4/1     BC847ASMD      SOT23              transistor-npn (48.46 28.21)         MR180
+H5/2     BC847ASMD      SOT23              transistor-npn (15.36 28.61)         MR180
+IC1      ATMEGA644A     TQFP44             atmel          (38.04 35.43)         R225
+IC2      LM1117-5V      SOT223             v-reg          (66.65 14.29)         MR0
+IC3      FT232RL        SSOP28             ftdichip       (51.91 94.8)          R180
+J1       DCJ0202        DCJ0202            con-jack       (64.32 5.23)          R0
+JMP1     0R-JUMPC       C0R-JMP            jump-0r-smd    (12.82 33)            MR0
+JMP2     0R-JUMPC       C0R-JMP            jump-0r-smd    (45.81 32.7)          MR180
+JMP3     0R-JUMPC       C0R-JMP            jump-0r-smd    (14.35 66.9)          MR180
+JMP4     0R-JUMPC       C0R-JMP            jump-0r-smd    (47.79 66.7)          MR180
+JMP5     0R-JUMPC       C0R-JMP            jump-0r-smd    (79.43 32.8)          MR180
+JMP6     0R-JUMPC       C0R-JMP            jump-0r-smd    (81.17 66.8)          MR180
+JP1                     JP1                jumper         (95.1 75.6)           R0
+JP2                     JP1                jumper         (5 75.8)              R0
+JP3                     JP4                jumper         (5 67.6)              R270
+LED_H3/0                LED10MM            led            (83.25 24.9)          R180
+LED_H4/1                LED10MM            led            (49.9 24.9)           R180
+LED_H5/2                LED10MM            led            (16.65 24.9)          R180
+LED_M3/0                LED10MM            led            (83.25 74.9)          R180
+LED_M4/1                LED10MM            led            (49.9 74.9)           R180
+LED_M5/2                LED10MM            led            (16.65 74.9)          R180
+M3/0     BC847ASMD      SOT23              transistor-npn (81.94 71.45)         MR0
+M4/1     BC847ASMD      SOT23              transistor-npn (48.74 71.35)         MR0
+M5/2     BC847ASMD      SOT23              transistor-npn (15.34 71.55)         MR0
+Q1                      HC49UP             crystal        (47.52 46.58)         R135
+Q2                      TC26H              crystal        (30.12 30.61)         R135
+R1       10k            R0603              rcl            (78.71 45.92)         MR180
+R2       10k            R0603              rcl            (94.72 54.21)         MR270
+R3       10k            R0603              rcl            (94.13 67.38)         MR0
+R4       250R           R0805              rcl            (18.52 28.22)         MR90
+R5       3k             R0603              rcl            (14.48 32.18)         MR270
+R6       250R           R0805              rcl            (54.12 28.77)         MR90
+R7       3k             R0603              rcl            (47.48 31.89)         MR270
+R8       250R           R0805              rcl            (18.68 71.38)         MR270
+R9       3k             R0603              rcl            (16.22 67.8)          MR90
+R10      250R           R0805              rcl            (51.98 71.23)         MR270
+R11      3k             R0603              rcl            (49.7 67.59)          MR90
+R12      250R           R0805              rcl            (85.02 28.22)         MR90
+R13      3k             R0603              rcl            (81.1 31.99)          MR270
+R14      250R           R0805              rcl            (85.18 71.13)         MR270
+R15      3k             R0603              rcl            (82.9 67.63)          MR90
+S1                      B3F-10XX           switch-omron   (77.07 46.05)         R90
+S2                      B3F-10XX           switch-omron   (94.68 56.17)         R180
+S3                      B3F-10XX           switch-omron   (94.65 63.11)         R180
+SV1                     MA08-1W            con-lstb       (95 11)               R270
+SV2                     FE08W              con-lsta       (5 11)                R90
+SV3                     MA08-1W            con-lstb       (95 89)               R270
+SV4                     FE08W              con-lsta       (5 89)                R90
+SV5                     ML10               con-ml         (5 50)                R270
+X1       PN61729-S      PN61729-S          con-berg       (38.21 94.97)         R180

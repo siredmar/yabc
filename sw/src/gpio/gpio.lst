@@ -1,0 +1,464 @@
+   1               		.file	"gpio.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.global __do_copy_data
+   8               		.global __do_clear_bss
+  10               		.text
+  11               	.Ltext0:
+ 126               	.global	gpio_WriteChannel
+ 128               	gpio_WriteChannel:
+   1:src/gpio/gpio.c **** /*
+   2:src/gpio/gpio.c ****  * changes:
+   3:src/gpio/gpio.c ****  *  18.08.2014  Mr. L.  added gpio_ReadPort(), gpio_WritePort
+   4:src/gpio/gpio.c ****  */
+   5:src/gpio/gpio.c **** 
+   6:src/gpio/gpio.c **** #include "gpio.h"
+   7:src/gpio/gpio.c **** #include "gpio_cfg.h"
+   8:src/gpio/gpio.c **** #include "gpio_lcfg.h"
+   9:src/gpio/gpio.c **** #include "std_types.h"
+  10:src/gpio/gpio.c **** 
+  11:src/gpio/gpio.c **** static const volatile gpio_ConfigType *localConfig;
+  12:src/gpio/gpio.c **** 
+  13:src/gpio/gpio.c **** volatile const gpio_RegisterAddresstype gpio_RegisterAdress_as[MAX_NUM_OF_PORTS] =
+  14:src/gpio/gpio.c **** {
+  15:src/gpio/gpio.c ****       {
+  16:src/gpio/gpio.c ****             (uint8*) GPIO_PORTA_ADDRESS,
+  17:src/gpio/gpio.c ****             (uint8*) GPIO_DDRA_ADDRESS,
+  18:src/gpio/gpio.c ****             (uint8*) GPIO_PINA_ADDRESS
+  19:src/gpio/gpio.c ****       },
+  20:src/gpio/gpio.c ****       {
+  21:src/gpio/gpio.c ****             (uint8*) GPIO_PORTB_ADDRESS,
+  22:src/gpio/gpio.c ****             (uint8*) GPIO_DDRB_ADDRESS,
+  23:src/gpio/gpio.c ****             (uint8*) GPIO_PINB_ADDRESS
+  24:src/gpio/gpio.c ****       },
+  25:src/gpio/gpio.c ****       {
+  26:src/gpio/gpio.c ****             (uint8*) GPIO_PORTC_ADDRESS,
+  27:src/gpio/gpio.c ****             (uint8*) GPIO_DDRC_ADDRESS,
+  28:src/gpio/gpio.c ****             (uint8*) GPIO_PINC_ADDRESS
+  29:src/gpio/gpio.c ****       },
+  30:src/gpio/gpio.c ****       {
+  31:src/gpio/gpio.c ****             (uint8*) GPIO_PORTD_ADDRESS,
+  32:src/gpio/gpio.c ****             (uint8*) GPIO_DDRD_ADDRESS,
+  33:src/gpio/gpio.c ****             (uint8*) GPIO_PIND_ADDRESS
+  34:src/gpio/gpio.c ****       }
+  35:src/gpio/gpio.c **** };
+  36:src/gpio/gpio.c **** 
+  37:src/gpio/gpio.c **** 
+  38:src/gpio/gpio.c **** void gpio_init()
+  39:src/gpio/gpio.c **** {
+  40:src/gpio/gpio.c ****    uint8 forCounter1_ui8;
+  41:src/gpio/gpio.c ****    gpio_PinInOutType gpio_LocalPinInOut;
+  42:src/gpio/gpio.c ****    gpio_PinInitialType gpio_LocalPinInitial;
+  43:src/gpio/gpio.c ****    gpio_PortType port_e;
+  44:src/gpio/gpio.c ****    gpio_PinType pin_e;
+  45:src/gpio/gpio.c ****    uint16 channel_ui16;
+  46:src/gpio/gpio.c **** 
+  47:src/gpio/gpio.c ****    localConfig = (const gpio_ConfigType*) gpio_getlcfgdata();
+  48:src/gpio/gpio.c **** 
+  49:src/gpio/gpio.c ****    for(forCounter1_ui8 = 0; forCounter1_ui8 < MAX_NUM_OF_PORTS * MAX_NUM_OF_PINS; forCounter1_ui8++
+  50:src/gpio/gpio.c ****    {
+  51:src/gpio/gpio.c ****       if(localConfig->gpio_PinConfig[forCounter1_ui8].gpio_ConfireAllowed == GPIO_TRUE)
+  52:src/gpio/gpio.c ****       {
+  53:src/gpio/gpio.c ****          gpio_LocalPinInOut = localConfig->gpio_PinConfig[forCounter1_ui8].gpio_PinInOut;
+  54:src/gpio/gpio.c ****          gpio_LocalPinInitial = localConfig->gpio_PinConfig[forCounter1_ui8].gpio_PinInitial;
+  55:src/gpio/gpio.c ****          channel_ui16 = localConfig->gpio_PinConfig[forCounter1_ui8].gpio_Pin;
+  56:src/gpio/gpio.c ****          port_e = (uint8)(channel_ui16 >> 8);
+  57:src/gpio/gpio.c ****          pin_e = (uint8)((channel_ui16 & 0xFF));
+  58:src/gpio/gpio.c **** 
+  59:src/gpio/gpio.c ****          *(gpio_RegisterAdress_as[port_e].gpio_DirectionRegister_pui8) |= (uint8)(gpio_LocalPinInOu
+  60:src/gpio/gpio.c **** //         if(gpio_LocalPinInOut == GPIO_OUTPUT)
+  61:src/gpio/gpio.c **** //         {
+  62:src/gpio/gpio.c ****         	 *(gpio_RegisterAdress_as[port_e].gpio_PortRegister_pui8) |= (uint8)(gpio_LocalPinInitial 
+  63:src/gpio/gpio.c **** //         }
+  64:src/gpio/gpio.c ****       }
+  65:src/gpio/gpio.c ****    }
+  66:src/gpio/gpio.c **** }
+  67:src/gpio/gpio.c **** 
+  68:src/gpio/gpio.c **** 
+  69:src/gpio/gpio.c **** void gpio_WriteChannel(gpio_ChannelType channel, gpio_PinState state)
+  70:src/gpio/gpio.c **** {
+ 130               	.LM0:
+ 131               	.LFBB1:
+ 132               	/* prologue: function */
+ 133               	/* frame size = 0 */
+  71:src/gpio/gpio.c ****    gpio_PortType port_ui8 = (channel >> 8);
+ 135               	.LM1:
+ 136 0000 292F      		mov r18,r25
+ 137 0002 3327      		clr r19
+  72:src/gpio/gpio.c ****    gpio_PinType pin_ui8 = (channel & 0xFF);
+ 139               	.LM2:
+ 140 0004 AC01      		movw r20,r24
+ 141 0006 5070      		andi r21,hi8(255)
+ 142 0008 F901      		movw r30,r18
+ 143 000a EE0F      		lsl r30
+ 144 000c FF1F      		rol r31
+  73:src/gpio/gpio.c **** 
+  74:src/gpio/gpio.c ****    if(state == GPIO_HIGH)
+ 146               	.LM3:
+ 147 000e 6130      		cpi r22,1
+ 148 0010 7105      		cpc r23,__zero_reg__
+ 149 0012 01F4      		brne .L2
+  75:src/gpio/gpio.c ****       *(gpio_RegisterAdress_as[port_ui8].gpio_PortRegister_pui8) |= (1 << pin_ui8);
+ 151               	.LM4:
+ 152 0014 E20F      		add r30,r18
+ 153 0016 F31F      		adc r31,r19
+ 154 0018 EE0F      		lsl r30
+ 155 001a FF1F      		rol r31
+ 156 001c E050      		subi r30,lo8(-(gpio_RegisterAdress_as))
+ 157 001e F040      		sbci r31,hi8(-(gpio_RegisterAdress_as))
+ 158 0020 0190      		ld __tmp_reg__,Z+
+ 159 0022 F081      		ld r31,Z
+ 160 0024 E02D      		mov r30,__tmp_reg__
+ 161 0026 00C0      		rjmp 2f
+ 162 0028 660F      	1:	lsl r22
+ 163 002a 771F      		rol r23
+ 164 002c 4A95      	2:	dec r20
+ 165 002e 02F4      		brpl 1b
+ 166 0030 8081      		ld r24,Z
+ 167 0032 862B      		or r24,r22
+ 168 0034 8083      		st Z,r24
+ 169 0036 0895      		ret
+ 170               	.L2:
+  76:src/gpio/gpio.c ****    else
+  77:src/gpio/gpio.c ****       *(gpio_RegisterAdress_as[port_ui8].gpio_PortRegister_pui8) &= ~(1 << pin_ui8);
+ 172               	.LM5:
+ 173 0038 E20F      		add r30,r18
+ 174 003a F31F      		adc r31,r19
+ 175 003c EE0F      		lsl r30
+ 176 003e FF1F      		rol r31
+ 177 0040 E050      		subi r30,lo8(-(gpio_RegisterAdress_as))
+ 178 0042 F040      		sbci r31,hi8(-(gpio_RegisterAdress_as))
+ 179 0044 0190      		ld __tmp_reg__,Z+
+ 180 0046 F081      		ld r31,Z
+ 181 0048 E02D      		mov r30,__tmp_reg__
+ 182 004a 81E0      		ldi r24,lo8(1)
+ 183 004c 90E0      		ldi r25,hi8(1)
+ 184 004e 00C0      		rjmp 2f
+ 185 0050 880F      	1:	lsl r24
+ 186 0052 991F      		rol r25
+ 187 0054 4A95      	2:	dec r20
+ 188 0056 02F4      		brpl 1b
+ 189 0058 8095      		com r24
+ 190 005a 2081      		ld r18,Z
+ 191 005c 2823      		and r18,r24
+ 192 005e 2083      		st Z,r18
+ 193 0060 0895      		ret
+ 199               	.Lscope1:
+ 201               	.global	gpio_ToggleChannel
+ 203               	gpio_ToggleChannel:
+  78:src/gpio/gpio.c **** }
+  79:src/gpio/gpio.c **** 
+  80:src/gpio/gpio.c **** void gpio_ToggleChannel(gpio_ChannelType channel)
+  81:src/gpio/gpio.c **** {
+ 205               	.LM6:
+ 206               	.LFBB2:
+ 207               	/* prologue: function */
+ 208               	/* frame size = 0 */
+ 209 0062 292F      		mov r18,r25
+  82:src/gpio/gpio.c ****    gpio_PortType port_ui8 = (channel >> 8);
+ 211               	.LM7:
+ 212 0064 30E0      		ldi r19,lo8(0)
+  83:src/gpio/gpio.c ****    gpio_PinType pin_ui8 = (channel & 0xFF);
+  84:src/gpio/gpio.c **** 
+  85:src/gpio/gpio.c ****    *(gpio_RegisterAdress_as[port_ui8].gpio_PortRegister_pui8) ^= (uint8)(1 << pin_ui8);
+ 214               	.LM8:
+ 215 0066 F901      		movw r30,r18
+ 216 0068 EE0F      		lsl r30
+ 217 006a FF1F      		rol r31
+ 218 006c E20F      		add r30,r18
+ 219 006e F31F      		adc r31,r19
+ 220 0070 EE0F      		lsl r30
+ 221 0072 FF1F      		rol r31
+ 222 0074 E050      		subi r30,lo8(-(gpio_RegisterAdress_as))
+ 223 0076 F040      		sbci r31,hi8(-(gpio_RegisterAdress_as))
+ 224 0078 0190      		ld __tmp_reg__,Z+
+ 225 007a F081      		ld r31,Z
+ 226 007c E02D      		mov r30,__tmp_reg__
+ 227 007e 21E0      		ldi r18,lo8(1)
+ 228 0080 30E0      		ldi r19,hi8(1)
+ 229 0082 00C0      		rjmp 2f
+ 230 0084 220F      	1:	lsl r18
+ 231 0086 331F      		rol r19
+ 232 0088 8A95      	2:	dec r24
+ 233 008a 02F4      		brpl 1b
+ 234 008c 8081      		ld r24,Z
+ 235 008e 8227      		eor r24,r18
+ 236 0090 8083      		st Z,r24
+ 237               	/* epilogue start */
+  86:src/gpio/gpio.c **** }
+ 239               	.LM9:
+ 240 0092 0895      		ret
+ 245               	.Lscope2:
+ 247               	.global	gpio_ReadChannel
+ 249               	gpio_ReadChannel:
+  87:src/gpio/gpio.c **** 
+  88:src/gpio/gpio.c **** gpio_PinState gpio_ReadChannel(gpio_ChannelType channel)
+  89:src/gpio/gpio.c **** {
+ 251               	.LM10:
+ 252               	.LFBB3:
+ 253               	/* prologue: function */
+ 254               	/* frame size = 0 */
+ 255 0094 292F      		mov r18,r25
+  90:src/gpio/gpio.c ****    gpio_PortType port_ui8 = (channel >> 8);
+ 257               	.LM11:
+ 258 0096 30E0      		ldi r19,lo8(0)
+  91:src/gpio/gpio.c ****    gpio_PinType pin_ui8 = (channel & 0xFF);
+  92:src/gpio/gpio.c **** 
+  93:src/gpio/gpio.c ****    return *(gpio_RegisterAdress_as[port_ui8].gpio_InputRgister_pui8) & (uint8)(1 << pin_ui8);
+ 260               	.LM12:
+ 261 0098 F901      		movw r30,r18
+ 262 009a EE0F      		lsl r30
+ 263 009c FF1F      		rol r31
+ 264 009e E20F      		add r30,r18
+ 265 00a0 F31F      		adc r31,r19
+ 266 00a2 EE0F      		lsl r30
+ 267 00a4 FF1F      		rol r31
+ 268 00a6 E050      		subi r30,lo8(-(gpio_RegisterAdress_as))
+ 269 00a8 F040      		sbci r31,hi8(-(gpio_RegisterAdress_as))
+ 270 00aa 0480      		ldd __tmp_reg__,Z+4
+ 271 00ac F581      		ldd r31,Z+5
+ 272 00ae E02D      		mov r30,__tmp_reg__
+ 273 00b0 21E0      		ldi r18,lo8(1)
+ 274 00b2 30E0      		ldi r19,hi8(1)
+ 275 00b4 00C0      		rjmp 2f
+ 276 00b6 220F      	1:	lsl r18
+ 277 00b8 331F      		rol r19
+ 278 00ba 8A95      	2:	dec r24
+ 279 00bc 02F4      		brpl 1b
+ 280 00be 8081      		ld r24,Z
+  94:src/gpio/gpio.c **** }
+ 282               	.LM13:
+ 283 00c0 8223      		and r24,r18
+ 284 00c2 90E0      		ldi r25,lo8(0)
+ 285               	/* epilogue start */
+ 286 00c4 0895      		ret
+ 291               	.Lscope3:
+ 294               	.global	gpio_ReadPort
+ 296               	gpio_ReadPort:
+  95:src/gpio/gpio.c **** 
+  96:src/gpio/gpio.c **** 
+  97:src/gpio/gpio.c **** //!!! added --->
+  98:src/gpio/gpio.c **** gpio_PortState gpio_ReadPort(gpio_PortType port)
+  99:src/gpio/gpio.c **** {
+ 298               	.LM14:
+ 299               	.LFBB4:
+ 300               	/* prologue: function */
+ 301               	/* frame size = 0 */
+ 100:src/gpio/gpio.c ****     return *(gpio_RegisterAdress_as[port].gpio_InputRgister_pui8);
+ 303               	.LM15:
+ 304 00c6 FC01      		movw r30,r24
+ 305 00c8 EE0F      		lsl r30
+ 306 00ca FF1F      		rol r31
+ 307 00cc E80F      		add r30,r24
+ 308 00ce F91F      		adc r31,r25
+ 309 00d0 EE0F      		lsl r30
+ 310 00d2 FF1F      		rol r31
+ 311 00d4 E050      		subi r30,lo8(-(gpio_RegisterAdress_as))
+ 312 00d6 F040      		sbci r31,hi8(-(gpio_RegisterAdress_as))
+ 313 00d8 0480      		ldd __tmp_reg__,Z+4
+ 314 00da F581      		ldd r31,Z+5
+ 315 00dc E02D      		mov r30,__tmp_reg__
+ 101:src/gpio/gpio.c **** }
+ 317               	.LM16:
+ 318 00de 8081      		ld r24,Z
+ 319               	/* epilogue start */
+ 320 00e0 0895      		ret
+ 322               	.Lscope4:
+ 326               	.global	gpio_WritePort
+ 328               	gpio_WritePort:
+ 102:src/gpio/gpio.c **** 
+ 103:src/gpio/gpio.c **** void gpio_WritePort(gpio_PortType port, gpio_PortState state)
+ 104:src/gpio/gpio.c **** {
+ 330               	.LM17:
+ 331               	.LFBB5:
+ 332               	/* prologue: function */
+ 333               	/* frame size = 0 */
+ 105:src/gpio/gpio.c ****     *(gpio_RegisterAdress_as[port].gpio_PortRegister_pui8) = (uint8) state;
+ 335               	.LM18:
+ 336 00e2 FC01      		movw r30,r24
+ 337 00e4 EE0F      		lsl r30
+ 338 00e6 FF1F      		rol r31
+ 339 00e8 E80F      		add r30,r24
+ 340 00ea F91F      		adc r31,r25
+ 341 00ec EE0F      		lsl r30
+ 342 00ee FF1F      		rol r31
+ 343 00f0 E050      		subi r30,lo8(-(gpio_RegisterAdress_as))
+ 344 00f2 F040      		sbci r31,hi8(-(gpio_RegisterAdress_as))
+ 345 00f4 0190      		ld __tmp_reg__,Z+
+ 346 00f6 F081      		ld r31,Z
+ 347 00f8 E02D      		mov r30,__tmp_reg__
+ 348 00fa 6083      		st Z,r22
+ 349               	/* epilogue start */
+ 106:src/gpio/gpio.c **** }
+ 351               	.LM19:
+ 352 00fc 0895      		ret
+ 354               	.Lscope5:
+ 356               	.global	gpio_init
+ 358               	gpio_init:
+  39:src/gpio/gpio.c **** {
+ 360               	.LM20:
+ 361               	.LFBB6:
+ 362 00fe 0F93      		push r16
+ 363 0100 1F93      		push r17
+ 364 0102 CF93      		push r28
+ 365 0104 DF93      		push r29
+ 366               	/* prologue: function */
+ 367               	/* frame size = 0 */
+  47:src/gpio/gpio.c ****    localConfig = (const gpio_ConfigType*) gpio_getlcfgdata();
+ 369               	.LM21:
+ 370 0106 0E94 0000 		call gpio_getlcfgdata
+ 371 010a EC01      		movw r28,r24
+ 372 010c 9093 0000 		sts (localConfig)+1,r25
+ 373 0110 8093 0000 		sts localConfig,r24
+ 374 0114 00E0      		ldi r16,lo8(0)
+ 375 0116 10E0      		ldi r17,hi8(0)
+ 376               	.L15:
+  51:src/gpio/gpio.c ****       if(localConfig->gpio_PinConfig[forCounter1_ui8].gpio_ConfireAllowed == GPIO_TRUE)
+ 378               	.LM22:
+ 379 0118 D801      		movw r26,r16
+ 380 011a 93E0      		ldi r25,3
+ 381 011c AA0F      	1:	lsl r26
+ 382 011e BB1F      		rol r27
+ 383 0120 9A95      		dec r25
+ 384 0122 01F4      		brne 1b
+ 385 0124 AC0F      		add r26,r28
+ 386 0126 BD1F      		adc r27,r29
+ 387 0128 8D91      		ld r24,X+
+ 388 012a 9C91      		ld r25,X
+ 389 012c 1197      		sbiw r26,1
+ 390 012e 0197      		sbiw r24,1
+ 391 0130 01F0      		breq .+2
+ 392 0132 00C0      		rjmp .L14
+  53:src/gpio/gpio.c ****          gpio_LocalPinInOut = localConfig->gpio_PinConfig[forCounter1_ui8].gpio_PinInOut;
+ 394               	.LM23:
+ 395 0134 F801      		movw r30,r16
+ 396 0136 83E0      		ldi r24,3
+ 397 0138 EE0F      	1:	lsl r30
+ 398 013a FF1F      		rol r31
+ 399 013c 8A95      		dec r24
+ 400 013e 01F4      		brne 1b
+ 401 0140 3496      		adiw r30,4
+ 402 0142 EC0F      		add r30,r28
+ 403 0144 FD1F      		adc r31,r29
+ 404 0146 4081      		ld r20,Z
+ 405 0148 5181      		ldd r21,Z+1
+  54:src/gpio/gpio.c ****          gpio_LocalPinInitial = localConfig->gpio_PinConfig[forCounter1_ui8].gpio_PinInitial;
+ 407               	.LM24:
+ 408 014a FD01      		movw r30,r26
+ 409 014c 6681      		ldd r22,Z+6
+ 410 014e 7781      		ldd r23,Z+7
+  55:src/gpio/gpio.c ****          channel_ui16 = localConfig->gpio_PinConfig[forCounter1_ui8].gpio_Pin;
+ 412               	.LM25:
+ 413 0150 F801      		movw r30,r16
+ 414 0152 A3E0      		ldi r26,3
+ 415 0154 EE0F      	1:	lsl r30
+ 416 0156 FF1F      		rol r31
+ 417 0158 AA95      		dec r26
+ 418 015a 01F4      		brne 1b
+ 419 015c 3296      		adiw r30,2
+ 420 015e EC0F      		add r30,r28
+ 421 0160 FD1F      		adc r31,r29
+ 422 0162 2081      		ld r18,Z
+ 423 0164 3181      		ldd r19,Z+1
+  56:src/gpio/gpio.c ****          port_e = (uint8)(channel_ui16 >> 8);
+ 425               	.LM26:
+ 426 0166 832F      		mov r24,r19
+ 427 0168 90E0      		ldi r25,lo8(0)
+  59:src/gpio/gpio.c ****          *(gpio_RegisterAdress_as[port_e].gpio_DirectionRegister_pui8) |= (uint8)(gpio_LocalPinInOu
+ 429               	.LM27:
+ 430 016a FC01      		movw r30,r24
+ 431 016c EE0F      		lsl r30
+ 432 016e FF1F      		rol r31
+ 433 0170 E80F      		add r30,r24
+ 434 0172 F91F      		adc r31,r25
+ 435 0174 EE0F      		lsl r30
+ 436 0176 FF1F      		rol r31
+ 437 0178 DF01      		movw r26,r30
+ 438 017a A050      		subi r26,lo8(-(gpio_RegisterAdress_as+2))
+ 439 017c B040      		sbci r27,hi8(-(gpio_RegisterAdress_as+2))
+ 440 017e 0D90      		ld __tmp_reg__,X+
+ 441 0180 BC91      		ld r27,X
+ 442 0182 A02D      		mov r26,__tmp_reg__
+ 443 0184 022E      		mov r0,r18
+ 444 0186 00C0      		rjmp 2f
+ 445 0188 440F      	1:	lsl r20
+ 446 018a 551F      		rol r21
+ 447 018c 0A94      	2:	dec r0
+ 448 018e 02F4      		brpl 1b
+ 449 0190 8C91      		ld r24,X
+ 450 0192 842B      		or r24,r20
+ 451 0194 8C93      		st X,r24
+  62:src/gpio/gpio.c ****         	 *(gpio_RegisterAdress_as[port_e].gpio_PortRegister_pui8) |= (uint8)(gpio_LocalPinInitial 
+ 453               	.LM28:
+ 454 0196 E050      		subi r30,lo8(-(gpio_RegisterAdress_as))
+ 455 0198 F040      		sbci r31,hi8(-(gpio_RegisterAdress_as))
+ 456 019a 0190      		ld __tmp_reg__,Z+
+ 457 019c F081      		ld r31,Z
+ 458 019e E02D      		mov r30,__tmp_reg__
+ 459 01a0 00C0      		rjmp 2f
+ 460 01a2 660F      	1:	lsl r22
+ 461 01a4 771F      		rol r23
+ 462 01a6 2A95      	2:	dec r18
+ 463 01a8 02F4      		brpl 1b
+ 464 01aa 8081      		ld r24,Z
+ 465 01ac 862B      		or r24,r22
+ 466 01ae 8083      		st Z,r24
+ 467               	.L14:
+ 468 01b0 0F5F      		subi r16,lo8(-(1))
+ 469 01b2 1F4F      		sbci r17,hi8(-(1))
+  49:src/gpio/gpio.c ****    for(forCounter1_ui8 = 0; forCounter1_ui8 < MAX_NUM_OF_PORTS * MAX_NUM_OF_PINS; forCounter1_ui8++
+ 471               	.LM29:
+ 472 01b4 0032      		cpi r16,32
+ 473 01b6 1105      		cpc r17,__zero_reg__
+ 474 01b8 01F0      		breq .+2
+ 475 01ba 00C0      		rjmp .L15
+ 476               	/* epilogue start */
+  66:src/gpio/gpio.c **** }
+ 478               	.LM30:
+ 479 01bc DF91      		pop r29
+ 480 01be CF91      		pop r28
+ 481 01c0 1F91      		pop r17
+ 482 01c2 0F91      		pop r16
+ 483 01c4 0895      		ret
+ 491               	.Lscope6:
+ 492               	.global	gpio_RegisterAdress_as
+ 493               		.data
+ 496               	gpio_RegisterAdress_as:
+ 497 0000 2200      		.word	34
+ 498 0002 2100      		.word	33
+ 499 0004 2000      		.word	32
+ 500 0006 2500      		.word	37
+ 501 0008 2400      		.word	36
+ 502 000a 2300      		.word	35
+ 503 000c 2800      		.word	40
+ 504 000e 2700      		.word	39
+ 505 0010 2600      		.word	38
+ 506 0012 2B00      		.word	43
+ 507 0014 2A00      		.word	42
+ 508 0016 2900      		.word	41
+ 509               		.lcomm localConfig,2
+ 512               		.text
+ 514               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 gpio.c
+     /tmp/ccfscnSj.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccfscnSj.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccfscnSj.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccfscnSj.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccfscnSj.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccfscnSj.s:128    .text:00000000 gpio_WriteChannel
+     /tmp/ccfscnSj.s:496    .data:00000000 gpio_RegisterAdress_as
+     /tmp/ccfscnSj.s:203    .text:00000062 gpio_ToggleChannel
+     /tmp/ccfscnSj.s:249    .text:00000094 gpio_ReadChannel
+     /tmp/ccfscnSj.s:296    .text:000000c6 gpio_ReadPort
+     /tmp/ccfscnSj.s:328    .text:000000e2 gpio_WritePort
+     /tmp/ccfscnSj.s:358    .text:000000fe gpio_init
+                             .bss:00000000 localConfig
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+gpio_getlcfgdata

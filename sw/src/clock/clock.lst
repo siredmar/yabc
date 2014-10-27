@@ -1,0 +1,973 @@
+   1               		.file	"clock.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.global __do_copy_data
+   8               		.global __do_clear_bss
+  10               		.text
+  11               	.Ltext0:
+ 130               	.global	clock_halt
+ 132               	clock_halt:
+   1:src/clock/clock.c **** /* ************************************************************************************************
+   2:src/clock/clock.c ****  * file:        clock.c
+   3:src/clock/clock.c ****  *
+   4:src/clock/clock.c ****  *          The clock module.
+   5:src/clock/clock.c ****  *
+   6:src/clock/clock.c ****  * author:      Armin
+   7:src/clock/clock.c ****  * date:        28.07.2014
+   8:src/clock/clock.c ****  * version:     0.4   worky, but not ready
+   9:src/clock/clock.c ****  *
+  10:src/clock/clock.c ****  * file history:
+  11:src/clock/clock.c ****  *          28.07.2014  Armin   file created
+  12:src/clock/clock.c ****  *          26.09.2014  Mr.L.   changed way of calculating date, edit timer reoutines, nicified,
+  13:src/clock/clock.c ****  *                                  moved and renamed data structures, added CONSTs, ...
+  14:src/clock/clock.c ****  *
+  15:src/clock/clock.c ****  * notes:
+  16:src/clock/clock.c ****  *          - none -
+  17:src/clock/clock.c ****  *
+  18:src/clock/clock.c ****  * copyright:   http://creativecommons.org/licenses/by-nc-sa/3.0/
+  19:src/clock/clock.c ****  **************************************************************************************************
+  20:src/clock/clock.c **** 
+  21:src/clock/clock.c **** /* ------------------------------------ INCLUDES ------------------------------------------------ *
+  22:src/clock/clock.c **** #include "clock.h"
+  23:src/clock/clock.c **** 
+  24:src/clock/clock.c **** 
+  25:src/clock/clock.c **** 
+  26:src/clock/clock.c **** /* ------------------------------------ DEFINES ------------------------------------------------- *
+  27:src/clock/clock.c **** #define CLOCK_HOUR_PORT GPIO_PORTA
+  28:src/clock/clock.c **** #define CLOCK_MINUTE_PORT GPIO_PORTB
+  29:src/clock/clock.c **** /* ------------------------------------ TYPE DEFINITIONS ---------------------------------------- *
+  30:src/clock/clock.c **** 
+  31:src/clock/clock.c **** enum
+  32:src/clock/clock.c **** {
+  33:src/clock/clock.c ****    ZERO,
+  34:src/clock/clock.c ****    ONE,
+  35:src/clock/clock.c ****    TWO,
+  36:src/clock/clock.c ****    THREE,
+  37:src/clock/clock.c ****    FOUR,
+  38:src/clock/clock.c ****    FIVE,
+  39:src/clock/clock.c ****    SIX,
+  40:src/clock/clock.c ****    SEVEN,
+  41:src/clock/clock.c ****    EIGHT,
+  42:src/clock/clock.c ****    NINE,
+  43:src/clock/clock.c ****    DOT
+  44:src/clock/clock.c **** };
+  45:src/clock/clock.c **** 
+  46:src/clock/clock.c **** 
+  47:src/clock/clock.c **** /* ------------------------------------ GLOBAL VARIABLES ---------------------------------------- *
+  48:src/clock/clock.c **** 
+  49:src/clock/clock.c **** 
+  50:src/clock/clock.c **** /* ------------------------------------ PRIVATE VARIABLES --------------------------------------- *
+  51:src/clock/clock.c **** static clockType dateAndTime;
+  52:src/clock/clock.c **** 
+  53:src/clock/clock.c **** //!!! <--- moved from .h
+  54:src/clock/clock.c **** 
+  55:src/clock/clock.c **** static uint8 timerStoppedCounter;   // prevention of accidently restarting timer2
+  56:src/clock/clock.c **** 
+  57:src/clock/clock.c **** 
+  58:src/clock/clock.c **** 
+  59:src/clock/clock.c **** /* ------------------------------------ PROTOTYPES ---------------------------------------------- *
+  60:src/clock/clock.c **** static void clock_delay(uint16 ms);
+  61:src/clock/clock.c **** static void updateDateAndTime(void);
+  62:src/clock/clock.c **** 
+  63:src/clock/clock.c **** 
+  64:src/clock/clock.c **** /* ------------------------------------ GLOBAL FUNCTIONS ---------------------------------------- *
+  65:src/clock/clock.c **** 
+  66:src/clock/clock.c **** /* ---------------------------------------------------------------------------------------------- *
+  67:src/clock/clock.c ****  * T.B.F.
+  68:src/clock/clock.c **** \* ---------------------------------------------------------------------------------------------- *
+  69:src/clock/clock.c **** void clock_init(void)
+  70:src/clock/clock.c **** {
+  71:src/clock/clock.c ****    dateAndTime.second = 0;                    /* set initial time and date  */
+  72:src/clock/clock.c ****    dateAndTime.minute = 0;
+  73:src/clock/clock.c ****    dateAndTime.hour   = 0;
+  74:src/clock/clock.c **** 
+  75:src/clock/clock.c **** 
+  76:src/clock/clock.c ****    /* --- timer init ---  */
+  77:src/clock/clock.c **** 
+  78:src/clock/clock.c ****    TIMSK2 = 0;                             // disable all timer2 interrupts
+  79:src/clock/clock.c **** 
+  80:src/clock/clock.c ****    ASSR   |= (1 << AS2);                   // enable asynchronous mode
+  81:src/clock/clock.c ****    clock_delay(1000);                      // wait for oscillator swinging safely
+  82:src/clock/clock.c **** 
+  83:src/clock/clock.c ****    TCNT2   = 0;                            // set counter register
+  84:src/clock/clock.c ****    OCR2A   = 128 - 1;                      // 32768 / 256 / 1 = 128, interval = 1s
+  85:src/clock/clock.c ****    //    OCR2A   = 256 - 1;                      // adjust interval for testing, #rat
+  86:src/clock/clock.c ****    TCCR2A  = (1 << WGM21);                 // set CTC mode, TOP value = OCRA
+  87:src/clock/clock.c ****    TCCR2B |= (1 << CS22) | (1 << CS21);    // set prescaler = 256 and start timer
+  88:src/clock/clock.c **** 
+  89:src/clock/clock.c ****    while (ASSR & ((1 << OCR2AUB)|(1 << TCR2AUB)|(1 << TCR2AUB)));  // wait for registers to update
+  90:src/clock/clock.c **** 
+  91:src/clock/clock.c ****    TIFR2   = 0;                            //clear pending interrupts
+  92:src/clock/clock.c ****    TIMSK2 |= (1<<OCIE2A);                  // Enable Compare Interrupt
+  93:src/clock/clock.c **** 
+  94:src/clock/clock.c ****    EIMSK = 0x03;
+  95:src/clock/clock.c **** 
+  96:src/clock/clock.c ****    clock_displayTime(dateAndTime);
+  97:src/clock/clock.c **** }
+  98:src/clock/clock.c **** 
+  99:src/clock/clock.c **** /* ---------------------------------------------------------------------------------------------- *
+ 100:src/clock/clock.c ****  * T.B.F.
+ 101:src/clock/clock.c **** \* ---------------------------------------------------------------------------------------------- *
+ 102:src/clock/clock.c **** void clock_halt(void)
+ 103:src/clock/clock.c **** {
+ 134               	.LM0:
+ 135               	.LFBB1:
+ 136               	/* prologue: function */
+ 137               	/* frame size = 0 */
+ 104:src/clock/clock.c ****    if (timerStoppedCounter == 0)
+ 139               	.LM1:
+ 140 0000 9091 0000 		lds r25,timerStoppedCounter
+ 141 0004 9923      		tst r25
+ 142 0006 01F4      		brne .L2
+ 105:src/clock/clock.c ****    {
+ 106:src/clock/clock.c ****       TCCR2B = 0;                     // stop timer
+ 144               	.LM2:
+ 145 0008 1092 B100 		sts 177,__zero_reg__
+ 146               	.L3:
+ 107:src/clock/clock.c ****       while (ASSR & (1 << TCR2AUB));  // wait for register to update
+ 148               	.LM3:
+ 149 000c 8091 B600 		lds r24,182
+ 150 0010 81FD      		sbrc r24,1
+ 151 0012 00C0      		rjmp .L3
+ 152               	.L2:
+ 108:src/clock/clock.c ****    }
+ 109:src/clock/clock.c **** 
+ 110:src/clock/clock.c ****    timerStoppedCounter++;
+ 154               	.LM4:
+ 155 0014 9F5F      		subi r25,lo8(-(1))
+ 156 0016 9093 0000 		sts timerStoppedCounter,r25
+ 157               	/* epilogue start */
+ 111:src/clock/clock.c **** }
+ 159               	.LM5:
+ 160 001a 0895      		ret
+ 162               	.Lscope1:
+ 164               	.global	clock_restart
+ 166               	clock_restart:
+ 112:src/clock/clock.c **** 
+ 113:src/clock/clock.c **** /* ---------------------------------------------------------------------------------------------- *
+ 114:src/clock/clock.c ****  * T.B.F.
+ 115:src/clock/clock.c **** \* ---------------------------------------------------------------------------------------------- *
+ 116:src/clock/clock.c **** void clock_restart(void)
+ 117:src/clock/clock.c **** {
+ 168               	.LM6:
+ 169               	.LFBB2:
+ 170               	/* prologue: function */
+ 171               	/* frame size = 0 */
+ 118:src/clock/clock.c ****    if (timerStoppedCounter == 1)
+ 173               	.LM7:
+ 174 001c 9091 0000 		lds r25,timerStoppedCounter
+ 175 0020 9130      		cpi r25,lo8(1)
+ 176 0022 01F4      		brne .L7
+ 119:src/clock/clock.c ****    {
+ 120:src/clock/clock.c ****       TCCR2B |= (1 << CS22) | (1 << CS21);    // set prescaler = 256 and start timer
+ 178               	.LM8:
+ 179 0024 8091 B100 		lds r24,177
+ 180 0028 8660      		ori r24,lo8(6)
+ 181 002a 8093 B100 		sts 177,r24
+ 182               	.L8:
+ 121:src/clock/clock.c ****       while (ASSR & (1 << TCR2AUB));          // wait for register to update
+ 184               	.LM9:
+ 185 002e 8091 B600 		lds r24,182
+ 186 0032 81FD      		sbrc r24,1
+ 187 0034 00C0      		rjmp .L8
+ 188 0036 00C0      		rjmp .L9
+ 189               	.L7:
+ 122:src/clock/clock.c ****    }
+ 123:src/clock/clock.c **** 
+ 124:src/clock/clock.c ****    if (timerStoppedCounter > 0)
+ 191               	.LM10:
+ 192 0038 9923      		tst r25
+ 193 003a 01F0      		breq .L11
+ 194               	.L9:
+ 125:src/clock/clock.c ****    {
+ 126:src/clock/clock.c ****       timerStoppedCounter--;
+ 196               	.LM11:
+ 197 003c 9150      		subi r25,lo8(-(-1))
+ 198 003e 9093 0000 		sts timerStoppedCounter,r25
+ 199               	.L11:
+ 200 0042 0895      		ret
+ 202               	.Lscope2:
+ 205               	.global	clock_displayTime
+ 207               	clock_displayTime:
+ 127:src/clock/clock.c ****    }
+ 128:src/clock/clock.c **** 
+ 129:src/clock/clock.c **** }
+ 130:src/clock/clock.c **** 
+ 131:src/clock/clock.c **** 
+ 132:src/clock/clock.c **** /* ---------------------------------------------------------------------------------------------- *
+ 133:src/clock/clock.c ****  * T.B.F.
+ 134:src/clock/clock.c **** \* ---------------------------------------------------------------------------------------------- *
+ 135:src/clock/clock.c **** void clock_displayTime(const clockType time)
+ 136:src/clock/clock.c **** {
+ 209               	.LM12:
+ 210               	.LFBB3:
+ 211 0044 DF93      		push r29
+ 212 0046 CF93      		push r28
+ 213 0048 00D0      		rcall .
+ 214 004a 0F92      		push __tmp_reg__
+ 215 004c CDB7      		in r28,__SP_L__
+ 216 004e DEB7      		in r29,__SP_H__
+ 217               	/* prologue: function */
+ 218               	/* frame size = 3 */
+ 219 0050 6983      		std Y+1,r22
+ 220 0052 7A83      		std Y+2,r23
+ 221 0054 8B83      		std Y+3,r24
+ 137:src/clock/clock.c ****    /* TODO yabc: replace second with hour */
+ 138:src/clock/clock.c ****       gpio_WritePort(CLOCK_HOUR_PORT, dateAndTime.hour);
+ 223               	.LM13:
+ 224 0056 80E0      		ldi r24,lo8(0)
+ 225 0058 90E0      		ldi r25,hi8(0)
+ 226 005a 6091 0000 		lds r22,dateAndTime+2
+ 227 005e 0E94 0000 		call gpio_WritePort
+ 139:src/clock/clock.c ****       gpio_WritePort(CLOCK_MINUTE_PORT, dateAndTime.minute);
+ 229               	.LM14:
+ 230 0062 81E0      		ldi r24,lo8(1)
+ 231 0064 90E0      		ldi r25,hi8(1)
+ 232 0066 6091 0000 		lds r22,dateAndTime+1
+ 233 006a 0E94 0000 		call gpio_WritePort
+ 234               	/* epilogue start */
+ 140:src/clock/clock.c **** }
+ 236               	.LM15:
+ 237 006e 0F90      		pop __tmp_reg__
+ 238 0070 0F90      		pop __tmp_reg__
+ 239 0072 0F90      		pop __tmp_reg__
+ 240 0074 CF91      		pop r28
+ 241 0076 DF91      		pop r29
+ 242 0078 0895      		ret
+ 244               	.Lscope3:
+ 247               	updateDateAndTime:
+ 141:src/clock/clock.c **** 
+ 142:src/clock/clock.c **** /* ------------------------------------ PRIVATE FUNCTIONS --------------------------------------- *
+ 143:src/clock/clock.c **** 
+ 144:src/clock/clock.c **** /* ---------------------------------------------------------------------------------------------- *
+ 145:src/clock/clock.c ****  * T.B.F.
+ 146:src/clock/clock.c **** \* ---------------------------------------------------------------------------------------------- *
+ 147:src/clock/clock.c **** static void clock_delay(uint16 ms)
+ 148:src/clock/clock.c **** {
+ 149:src/clock/clock.c ****    for (; ms > 0; ms--)
+ 150:src/clock/clock.c ****    {
+ 151:src/clock/clock.c ****       _delay_ms(1);
+ 152:src/clock/clock.c ****    }
+ 153:src/clock/clock.c **** }
+ 154:src/clock/clock.c **** 
+ 155:src/clock/clock.c **** /* ---------------------------------------------------------------------------------------------- *
+ 156:src/clock/clock.c ****  * T.B.F.
+ 157:src/clock/clock.c **** \* ---------------------------------------------------------------------------------------------- *
+ 158:src/clock/clock.c **** static void updateDateAndTime(void)
+ 159:src/clock/clock.c **** {
+ 249               	.LM16:
+ 250               	.LFBB4:
+ 251               	/* prologue: function */
+ 252               	/* frame size = 0 */
+ 160:src/clock/clock.c ****    //   boolean timeChanged = FALSE;
+ 161:src/clock/clock.c ****    //
+ 162:src/clock/clock.c ****    //   timeChanged = TRUE;                         //!!! #rat
+ 163:src/clock/clock.c **** 
+ 164:src/clock/clock.c ****    if (dateAndTime.second > 59)
+ 254               	.LM17:
+ 255 007a 8091 0000 		lds r24,dateAndTime
+ 256 007e 8C33      		cpi r24,lo8(60)
+ 257 0080 00F0      		brlo .L16
+ 165:src/clock/clock.c ****    {
+ 166:src/clock/clock.c ****       dateAndTime.second = 0;
+ 259               	.LM18:
+ 260 0082 1092 0000 		sts dateAndTime,__zero_reg__
+ 167:src/clock/clock.c ****       dateAndTime.minute++;
+ 262               	.LM19:
+ 263 0086 8091 0000 		lds r24,dateAndTime+1
+ 264 008a 8F5F      		subi r24,lo8(-(1))
+ 265 008c 8093 0000 		sts dateAndTime+1,r24
+ 266               	.L16:
+ 168:src/clock/clock.c ****       //      timeChanged = TRUE;
+ 169:src/clock/clock.c ****    }
+ 170:src/clock/clock.c ****    if (dateAndTime.minute > 59)
+ 268               	.LM20:
+ 269 0090 8091 0000 		lds r24,dateAndTime+1
+ 270 0094 8C33      		cpi r24,lo8(60)
+ 271 0096 00F0      		brlo .L17
+ 171:src/clock/clock.c ****    {
+ 172:src/clock/clock.c ****       dateAndTime.minute = 0;
+ 273               	.LM21:
+ 274 0098 1092 0000 		sts dateAndTime+1,__zero_reg__
+ 173:src/clock/clock.c ****       dateAndTime.hour++;
+ 276               	.LM22:
+ 277 009c 8091 0000 		lds r24,dateAndTime+2
+ 278 00a0 8F5F      		subi r24,lo8(-(1))
+ 279 00a2 8093 0000 		sts dateAndTime+2,r24
+ 280               	.L17:
+ 174:src/clock/clock.c ****    }
+ 175:src/clock/clock.c ****    if (dateAndTime.hour > 23)
+ 282               	.LM23:
+ 283 00a6 8091 0000 		lds r24,dateAndTime+2
+ 284 00aa 8831      		cpi r24,lo8(24)
+ 285 00ac 00F0      		brlo .L18
+ 176:src/clock/clock.c ****    {
+ 177:src/clock/clock.c ****       dateAndTime.hour = 0;
+ 287               	.LM24:
+ 288 00ae 1092 0000 		sts dateAndTime+2,__zero_reg__
+ 289               	.L18:
+ 178:src/clock/clock.c ****    }
+ 179:src/clock/clock.c ****    //   if (timeChanged == TRUE)
+ 180:src/clock/clock.c ****    //   {
+ 181:src/clock/clock.c ****    clock_displayTime(dateAndTime);
+ 291               	.LM25:
+ 292 00b2 6091 0000 		lds r22,dateAndTime
+ 293 00b6 7091 0000 		lds r23,dateAndTime+1
+ 294 00ba 8091 0000 		lds r24,dateAndTime+2
+ 295 00be 0E94 0000 		call clock_displayTime
+ 296               	/* epilogue start */
+ 182:src/clock/clock.c ****    //   }
+ 183:src/clock/clock.c **** }
+ 298               	.LM26:
+ 299 00c2 0895      		ret
+ 301               	.Lscope4:
+ 303               	.global	__vector_2
+ 305               	__vector_2:
+ 184:src/clock/clock.c **** 
+ 185:src/clock/clock.c **** /* ---------------------------------------------------------------------------------------------- *
+ 186:src/clock/clock.c ****  * T.B.F.
+ 187:src/clock/clock.c **** \* ---------------------------------------------------------------------------------------------- *
+ 188:src/clock/clock.c **** ISR(TIMER2_COMPA_vect)
+ 189:src/clock/clock.c **** {
+ 190:src/clock/clock.c ****    //   static cnt = 0;
+ 191:src/clock/clock.c ****    dateAndTime.second++;
+ 192:src/clock/clock.c ****    //   gpio_WritePort(GPIO_PORTA, cnt++);
+ 193:src/clock/clock.c ****    updateDateAndTime();
+ 194:src/clock/clock.c **** 
+ 195:src/clock/clock.c ****    while(ASSR & ((1<<TCN2UB) | (1<<OCR2AUB) | (1<<OCR2BUB) |
+ 196:src/clock/clock.c ****          (1<<TCR2AUB) | (1<<TCR2BUB)));
+ 197:src/clock/clock.c **** 
+ 198:src/clock/clock.c **** }
+ 199:src/clock/clock.c **** 
+ 200:src/clock/clock.c **** ISR(INT0_vect)
+ 201:src/clock/clock.c **** {
+ 202:src/clock/clock.c ****    dateAndTime.minute++;
+ 203:src/clock/clock.c ****    updateDateAndTime();
+ 204:src/clock/clock.c ****    _delay_ms(333);
+ 205:src/clock/clock.c **** }
+ 206:src/clock/clock.c **** 
+ 207:src/clock/clock.c **** ISR(INT1_vect)
+ 208:src/clock/clock.c **** {
+ 307               	.LM27:
+ 308               	.LFBB5:
+ 309 00c4 1F92      		push __zero_reg__
+ 310 00c6 0F92      		push r0
+ 311 00c8 0FB6      		in r0,__SREG__
+ 312 00ca 0F92      		push r0
+ 313 00cc 1124      		clr __zero_reg__
+ 314 00ce 2F93      		push r18
+ 315 00d0 3F93      		push r19
+ 316 00d2 4F93      		push r20
+ 317 00d4 5F93      		push r21
+ 318 00d6 6F93      		push r22
+ 319 00d8 7F93      		push r23
+ 320 00da 8F93      		push r24
+ 321 00dc 9F93      		push r25
+ 322 00de AF93      		push r26
+ 323 00e0 BF93      		push r27
+ 324 00e2 EF93      		push r30
+ 325 00e4 FF93      		push r31
+ 326               	/* prologue: Signal */
+ 327               	/* frame size = 0 */
+ 209:src/clock/clock.c ****    dateAndTime.hour++;
+ 329               	.LM28:
+ 330 00e6 8091 0000 		lds r24,dateAndTime+2
+ 331 00ea 8F5F      		subi r24,lo8(-(1))
+ 332 00ec 8093 0000 		sts dateAndTime+2,r24
+ 210:src/clock/clock.c ****    updateDateAndTime();
+ 334               	.LM29:
+ 335 00f0 0E94 0000 		call updateDateAndTime
+ 336 00f4 82E0      		ldi r24,lo8(3330)
+ 337 00f6 9DE0      		ldi r25,hi8(3330)
+ 338               	.LBB31:
+ 339               	.LBB32:
+ 340               	.LBB33:
+ 341               	.LBB34:
+ 343               	.Ltext1:
+   1:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****    Copyright (c) 2007 Joerg Wunsch
+   3:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****    All rights reserved.
+   4:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+   5:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****    Redistribution and use in source and binary forms, with or without
+   6:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****    modification, are permitted provided that the following conditions are met:
+   7:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+   8:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****    * Redistributions of source code must retain the above copyright
+   9:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****      notice, this list of conditions and the following disclaimer.
+  10:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  11:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****    * Redistributions in binary form must reproduce the above copyright
+  12:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****      notice, this list of conditions and the following disclaimer in
+  13:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****      the documentation and/or other materials provided with the
+  14:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****      distribution.
+  15:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  16:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****    * Neither the name of the copyright holders nor the names of
+  17:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****      contributors may be used to endorse or promote products derived
+  18:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****      from this software without specific prior written permission.
+  19:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  20:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  21:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  22:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  23:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  24:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  25:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  26:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  27:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  28:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  29:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  30:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  31:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  32:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** /* $Id: delay_basic.h 2143 2010-06-08 21:19:51Z joerg_wunsch $ */
+  33:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  34:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** #ifndef _UTIL_DELAY_BASIC_H_
+  35:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** #define _UTIL_DELAY_BASIC_H_ 1
+  36:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  37:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** #include <inttypes.h>
+  38:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  39:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** #if !defined(__DOXYGEN__)
+  40:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** static inline void _delay_loop_1(uint8_t __count) __attribute__((always_inline));
+  41:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** static inline void _delay_loop_2(uint16_t __count) __attribute__((always_inline));
+  42:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** #endif
+  43:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  44:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** /** \file */
+  45:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** /** \defgroup util_delay_basic <util/delay_basic.h>: Basic busy-wait delay loops
+  46:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     \code
+  47:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     #include <util/delay_basic.h>
+  48:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     \endcode
+  49:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  50:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     The functions in this header file implement simple delay loops
+  51:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     that perform a busy-waiting.  They are typically used to
+  52:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     facilitate short delays in the program execution.  They are
+  53:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     implemented as count-down loops with a well-known CPU cycle
+  54:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     count per loop iteration.  As such, no other processing can
+  55:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     occur simultaneously.  It should be kept in mind that the
+  56:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     functions described here do not disable interrupts.
+  57:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  58:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     In general, for long delays, the use of hardware timers is
+  59:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     much preferrable, as they free the CPU, and allow for
+  60:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     concurrent processing of other events while the timer is
+  61:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     running.  However, in particular for very short delays, the
+  62:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     overhead of setting up a hardware timer is too much compared
+  63:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     to the overall delay time.
+  64:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  65:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     Two inline functions are provided for the actual delay algorithms.
+  66:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  67:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** */
+  68:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  69:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** /** \ingroup util_delay_basic
+  70:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  71:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     Delay loop using an 8-bit counter \c __count, so up to 256
+  72:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     iterations are possible.  (The value 256 would have to be passed
+  73:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     as 0.)  The loop executes three CPU cycles per iteration, not
+  74:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     including the overhead the compiler needs to setup the counter
+  75:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     register.
+  76:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  77:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     Thus, at a CPU speed of 1 MHz, delays of up to 768 microseconds
+  78:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     can be achieved.
+  79:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** */
+  80:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** void
+  81:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** _delay_loop_1(uint8_t __count)
+  82:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** {
+  83:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 	__asm__ volatile (
+  84:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 		"1: dec %0" "\n\t"
+  85:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 		"brne 1b"
+  86:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 		: "=r" (__count)
+  87:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 		: "0" (__count)
+  88:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 	);
+  89:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** }
+  90:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  91:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** /** \ingroup util_delay_basic
+  92:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  93:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     Delay loop using a 16-bit counter \c __count, so up to 65536
+  94:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     iterations are possible.  (The value 65536 would have to be
+  95:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     passed as 0.)  The loop executes four CPU cycles per iteration,
+  96:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     not including the overhead the compiler requires to setup the
+  97:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     counter register pair.
+  98:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 
+  99:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     Thus, at a CPU speed of 1 MHz, delays of up to about 262.1
+ 100:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****     milliseconds can be achieved.
+ 101:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h ****  */
+ 102:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** void
+ 103:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** _delay_loop_2(uint16_t __count)
+ 104:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** {
+ 105:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h **** 	__asm__ volatile (
+ 345               	.LM30:
+ 346 00f8 28EC      		ldi r18,lo8(200)
+ 347 00fa 30E0      		ldi r19,hi8(200)
+ 348               	.L21:
+ 349 00fc F901      		movw r30,r18
+ 350               	/* #APP */
+ 351               	 ;  105 "/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h" 1
+ 352 00fe 3197      		1: sbiw r30,1
+ 353 0100 01F4      		brne 1b
+ 354               	 ;  0 "" 2
+ 355               	/* #NOAPP */
+ 356               	.LBE34:
+ 357               	.LBE33:
+ 359               	.Ltext2:
+   1:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    Copyright (c) 2004,2005,2007 Joerg Wunsch
+   3:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    Copyright (c) 2007  Florin-Viorel Petrov
+   4:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    All rights reserved.
+   5:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+   6:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    Redistribution and use in source and binary forms, with or without
+   7:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    modification, are permitted provided that the following conditions are met:
+   8:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+   9:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    * Redistributions of source code must retain the above copyright
+  10:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer.
+  11:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  12:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    * Redistributions in binary form must reproduce the above copyright
+  13:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer in
+  14:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****      the documentation and/or other materials provided with the
+  15:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****      distribution.
+  16:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  17:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    * Neither the name of the copyright holders nor the names of
+  18:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****      contributors may be used to endorse or promote products derived
+  19:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****      from this software without specific prior written permission.
+  20:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  21:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  22:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  23:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  24:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  25:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  26:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  27:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  28:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  29:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  30:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  31:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  32:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  33:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** /* $Id: delay.h.in 2189 2010-10-13 09:39:34Z aboyapati $ */
+  34:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  35:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** #ifndef _UTIL_DELAY_H_
+  36:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** #define _UTIL_DELAY_H_ 1
+  37:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  38:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** #ifndef __HAS_DELAY_CYCLES
+  39:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** #define __HAS_DELAY_CYCLES 0
+  40:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** #endif
+  41:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  42:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** #include <inttypes.h>
+  43:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** #include <util/delay_basic.h>
+  44:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  45:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** /** \file */
+  46:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** /** \defgroup util_delay <util/delay.h>: Convenience functions for busy-wait delay loops
+  47:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     \code
+  48:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     #define F_CPU 1000000UL  // 1 MHz
+  49:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     //#define F_CPU 14.7456E6
+  50:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     #include <util/delay.h>
+  51:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     \endcode
+  52:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  53:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     \note As an alternative method, it is possible to pass the
+  54:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     F_CPU macro down to the compiler from the Makefile.
+  55:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     Obviously, in that case, no \c \#define statement should be
+  56:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     used.
+  57:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  58:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     The functions in this header file are wrappers around the basic
+  59:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     busy-wait functions from <util/delay_basic.h>.  They are meant as
+  60:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     convenience functions where actual time values can be specified
+  61:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     rather than a number of cycles to wait for.  The idea behind is
+  62:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     that compile-time constant expressions will be eliminated by
+  63:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     compiler optimization so floating-point expressions can be used
+  64:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     to calculate the number of delay cycles needed based on the CPU
+  65:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     frequency passed by the macro F_CPU.
+  66:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  67:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     \note In order for these functions to work as intended, compiler
+  68:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     optimizations <em>must</em> be enabled, and the delay time
+  69:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     <em>must</em> be an expression that is a known constant at
+  70:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     compile-time.  If these requirements are not met, the resulting
+  71:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     delay will be much longer (and basically unpredictable), and
+  72:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     applications that otherwise do not use floating-point calculations
+  73:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     will experience severe code bloat by the floating-point library
+  74:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     routines linked into the application.
+  75:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  76:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     The functions available allow the specification of microsecond, and
+  77:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     millisecond delays directly, using the application-supplied macro
+  78:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     F_CPU as the CPU clock frequency (in Hertz).
+  79:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  80:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** */
+  81:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  82:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** #if !defined(__DOXYGEN__)
+  83:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** static inline void _delay_us(double __us) __attribute__((always_inline));
+  84:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** static inline void _delay_ms(double __ms) __attribute__((always_inline));
+  85:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** #endif
+  86:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  87:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** #ifndef F_CPU
+  88:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** /* prevent compiler error by supplying a default */
+  89:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** # warning "F_CPU not defined for <util/delay.h>"
+  90:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** # define F_CPU 1000000UL
+  91:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** #endif
+  92:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  93:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** #ifndef __OPTIMIZE__
+  94:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** # warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+  95:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** #endif
+  96:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+  97:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** /**
+  98:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    \ingroup util_delay
+  99:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+ 100:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    Perform a delay of \c __ms milliseconds, using _delay_loop_2().
+ 101:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+ 102:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 103:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 104:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+ 105:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    The maximal possible delay is 262.14 ms / F_CPU in MHz.
+ 106:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+ 107:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    When the user request delay which exceed the maximum possible one,
+ 108:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    _delay_ms() provides a decreased resolution functionality. In this
+ 109:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    mode _delay_ms() will work with a resolution of 1/10 ms, providing
+ 110:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    delays up to 6.5535 seconds (independent from CPU frequency).  The
+ 111:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    user will not be informed about decreased resolution.
+ 112:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+ 113:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    If the avr-gcc toolchain has __builtin_avr_delay_cycles(unsigned long)
+ 114:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    support, maximal possible delay is 4294967.295 ms/ F_CPU in MHz. For
+ 115:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    values greater than the maximal possible delay, overflows results in
+ 116:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    no delay i.e., 0ms.
+ 117:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+ 118:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    Conversion of __us into clock cycles may not always result in integer.
+ 119:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    By default, the clock cycles rounded up to next integer. This ensures that
+ 120:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    the user gets atleast __us microseconds of delay.
+ 121:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+ 122:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    Alternatively, user can define __DELAY_ROUND_DOWN__ and __DELAY_ROUND_CLOSEST__
+ 123:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    to round down and round to closest integer.
+ 124:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+ 125:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    Note: The new implementation of _delay_ms(double __ms) with 
+ 126:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****     __builtin_avr_delay_cycles(unsigned long) support is not backward compatible. 
+ 127:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    User can define __DELAY_BACKWARD_COMPATIBLE__ to get a backward compatible delay
+ 128:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    although this will be deprecated in future.
+ 129:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+ 130:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****  */
+ 131:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** void
+ 132:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** _delay_ms(double __ms)
+ 133:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** {
+ 134:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 	uint16_t __ticks;
+ 135:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 	double __tmp ; 
+ 136:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && !defined(__DELAY_BACKWARD_COMPATIBLE__)
+ 137:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 	uint32_t __ticks_dc;
+ 138:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(unsigned long);
+ 139:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
+ 140:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+ 141:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
+ 142:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)fabs(__tmp);
+ 143:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+ 144:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 	#elif defined(__DELAY_ROUND_CLOSEST__)
+ 145:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(fabs(__tmp)+0.5);
+ 146:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+ 147:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 	#else
+ 148:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 		//round up by default
+ 149:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+ 150:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 	#endif
+ 151:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+ 152:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 153:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 
+ 154:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** #elif !__HAS_DELAY_CYCLES || (__HAS_DELAY_CYCLES && !defined(__OPTIMIZE__)) || defined (__DELAY_BAC
+ 155:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 4e3) * __ms;
+ 156:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 	if (__tmp < 1.0)
+ 157:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 		__ticks = 1;
+ 158:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 	else if (__tmp > 65535)
+ 159:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 	{
+ 160:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 		//	__ticks = requested delay in 1/10 ms
+ 161:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 		__ticks = (uint16_t) (__ms * 10.0);
+ 162:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 		while(__ticks)
+ 163:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 		{
+ 164:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 			// wait 1/10 ms
+ 165:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 			_delay_loop_2(((F_CPU) / 4e3) / 10);
+ 166:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 			__ticks --;
+ 361               	.LM31:
+ 362 0102 0197      		sbiw r24,1
+ 162:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 		while(__ticks)
+ 364               	.LM32:
+ 365 0104 01F4      		brne .L21
+ 366               	/* epilogue start */
+ 367               	.LBE32:
+ 368               	.LBE31:
+ 370               	.Ltext3:
+ 211:src/clock/clock.c ****    _delay_ms(333);
+ 212:src/clock/clock.c **** }
+ 372               	.LM33:
+ 373 0106 FF91      		pop r31
+ 374 0108 EF91      		pop r30
+ 375 010a BF91      		pop r27
+ 376 010c AF91      		pop r26
+ 377 010e 9F91      		pop r25
+ 378 0110 8F91      		pop r24
+ 379 0112 7F91      		pop r23
+ 380 0114 6F91      		pop r22
+ 381 0116 5F91      		pop r21
+ 382 0118 4F91      		pop r20
+ 383 011a 3F91      		pop r19
+ 384 011c 2F91      		pop r18
+ 385 011e 0F90      		pop r0
+ 386 0120 0FBE      		out __SREG__,r0
+ 387 0122 0F90      		pop r0
+ 388 0124 1F90      		pop __zero_reg__
+ 389 0126 1895      		reti
+ 397               	.Lscope5:
+ 399               	.global	__vector_1
+ 401               	__vector_1:
+ 201:src/clock/clock.c **** {
+ 403               	.LM34:
+ 404               	.LFBB6:
+ 405 0128 1F92      		push __zero_reg__
+ 406 012a 0F92      		push r0
+ 407 012c 0FB6      		in r0,__SREG__
+ 408 012e 0F92      		push r0
+ 409 0130 1124      		clr __zero_reg__
+ 410 0132 2F93      		push r18
+ 411 0134 3F93      		push r19
+ 412 0136 4F93      		push r20
+ 413 0138 5F93      		push r21
+ 414 013a 6F93      		push r22
+ 415 013c 7F93      		push r23
+ 416 013e 8F93      		push r24
+ 417 0140 9F93      		push r25
+ 418 0142 AF93      		push r26
+ 419 0144 BF93      		push r27
+ 420 0146 EF93      		push r30
+ 421 0148 FF93      		push r31
+ 422               	/* prologue: Signal */
+ 423               	/* frame size = 0 */
+ 202:src/clock/clock.c ****    dateAndTime.minute++;
+ 425               	.LM35:
+ 426 014a 8091 0000 		lds r24,dateAndTime+1
+ 427 014e 8F5F      		subi r24,lo8(-(1))
+ 428 0150 8093 0000 		sts dateAndTime+1,r24
+ 203:src/clock/clock.c ****    updateDateAndTime();
+ 430               	.LM36:
+ 431 0154 0E94 0000 		call updateDateAndTime
+ 432 0158 82E0      		ldi r24,lo8(3330)
+ 433 015a 9DE0      		ldi r25,hi8(3330)
+ 434               	.LBB35:
+ 435               	.LBB36:
+ 436               	.LBB37:
+ 437               	.LBB38:
+ 439               	.Ltext4:
+ 441               	.LM37:
+ 442 015c 28EC      		ldi r18,lo8(200)
+ 443 015e 30E0      		ldi r19,hi8(200)
+ 444               	.L25:
+ 445 0160 F901      		movw r30,r18
+ 446               	/* #APP */
+ 447               	 ;  105 "/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h" 1
+ 448 0162 3197      		1: sbiw r30,1
+ 449 0164 01F4      		brne 1b
+ 450               	 ;  0 "" 2
+ 451               	/* #NOAPP */
+ 452               	.LBE38:
+ 453               	.LBE37:
+ 455               	.Ltext5:
+ 457               	.LM38:
+ 458 0166 0197      		sbiw r24,1
+ 162:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 		while(__ticks)
+ 460               	.LM39:
+ 461 0168 01F4      		brne .L25
+ 462               	/* epilogue start */
+ 463               	.LBE36:
+ 464               	.LBE35:
+ 466               	.Ltext6:
+ 205:src/clock/clock.c **** }
+ 468               	.LM40:
+ 469 016a FF91      		pop r31
+ 470 016c EF91      		pop r30
+ 471 016e BF91      		pop r27
+ 472 0170 AF91      		pop r26
+ 473 0172 9F91      		pop r25
+ 474 0174 8F91      		pop r24
+ 475 0176 7F91      		pop r23
+ 476 0178 6F91      		pop r22
+ 477 017a 5F91      		pop r21
+ 478 017c 4F91      		pop r20
+ 479 017e 3F91      		pop r19
+ 480 0180 2F91      		pop r18
+ 481 0182 0F90      		pop r0
+ 482 0184 0FBE      		out __SREG__,r0
+ 483 0186 0F90      		pop r0
+ 484 0188 1F90      		pop __zero_reg__
+ 485 018a 1895      		reti
+ 493               	.Lscope6:
+ 495               	.global	__vector_9
+ 497               	__vector_9:
+ 189:src/clock/clock.c **** {
+ 499               	.LM41:
+ 500               	.LFBB7:
+ 501 018c 1F92      		push __zero_reg__
+ 502 018e 0F92      		push r0
+ 503 0190 0FB6      		in r0,__SREG__
+ 504 0192 0F92      		push r0
+ 505 0194 1124      		clr __zero_reg__
+ 506 0196 2F93      		push r18
+ 507 0198 3F93      		push r19
+ 508 019a 4F93      		push r20
+ 509 019c 5F93      		push r21
+ 510 019e 6F93      		push r22
+ 511 01a0 7F93      		push r23
+ 512 01a2 8F93      		push r24
+ 513 01a4 9F93      		push r25
+ 514 01a6 AF93      		push r26
+ 515 01a8 BF93      		push r27
+ 516 01aa EF93      		push r30
+ 517 01ac FF93      		push r31
+ 518               	/* prologue: Signal */
+ 519               	/* frame size = 0 */
+ 191:src/clock/clock.c ****    dateAndTime.second++;
+ 521               	.LM42:
+ 522 01ae 8091 0000 		lds r24,dateAndTime
+ 523 01b2 8F5F      		subi r24,lo8(-(1))
+ 524 01b4 8093 0000 		sts dateAndTime,r24
+ 193:src/clock/clock.c ****    updateDateAndTime();
+ 526               	.LM43:
+ 527 01b8 0E94 0000 		call updateDateAndTime
+ 528               	.L29:
+ 195:src/clock/clock.c ****    while(ASSR & ((1<<TCN2UB) | (1<<OCR2AUB) | (1<<OCR2BUB) |
+ 530               	.LM44:
+ 531 01bc 8091 B600 		lds r24,182
+ 532 01c0 90E0      		ldi r25,lo8(0)
+ 533 01c2 8F71      		andi r24,lo8(31)
+ 534 01c4 9070      		andi r25,hi8(31)
+ 535 01c6 892B      		or r24,r25
+ 536 01c8 01F4      		brne .L29
+ 537               	/* epilogue start */
+ 198:src/clock/clock.c **** }
+ 539               	.LM45:
+ 540 01ca FF91      		pop r31
+ 541 01cc EF91      		pop r30
+ 542 01ce BF91      		pop r27
+ 543 01d0 AF91      		pop r26
+ 544 01d2 9F91      		pop r25
+ 545 01d4 8F91      		pop r24
+ 546 01d6 7F91      		pop r23
+ 547 01d8 6F91      		pop r22
+ 548 01da 5F91      		pop r21
+ 549 01dc 4F91      		pop r20
+ 550 01de 3F91      		pop r19
+ 551 01e0 2F91      		pop r18
+ 552 01e2 0F90      		pop r0
+ 553 01e4 0FBE      		out __SREG__,r0
+ 554 01e6 0F90      		pop r0
+ 555 01e8 1F90      		pop __zero_reg__
+ 556 01ea 1895      		reti
+ 558               	.Lscope7:
+ 560               	.global	clock_init
+ 562               	clock_init:
+  70:src/clock/clock.c **** {
+ 564               	.LM46:
+ 565               	.LFBB8:
+ 566               	/* prologue: function */
+ 567               	/* frame size = 0 */
+  71:src/clock/clock.c ****    dateAndTime.second = 0;                    /* set initial time and date  */
+ 569               	.LM47:
+ 570 01ec 1092 0000 		sts dateAndTime,__zero_reg__
+  72:src/clock/clock.c ****    dateAndTime.minute = 0;
+ 572               	.LM48:
+ 573 01f0 1092 0000 		sts dateAndTime+1,__zero_reg__
+  73:src/clock/clock.c ****    dateAndTime.hour   = 0;
+ 575               	.LM49:
+ 576 01f4 1092 0000 		sts dateAndTime+2,__zero_reg__
+  78:src/clock/clock.c ****    TIMSK2 = 0;                             // disable all timer2 interrupts
+ 578               	.LM50:
+ 579 01f8 1092 7000 		sts 112,__zero_reg__
+  80:src/clock/clock.c ****    ASSR   |= (1 << AS2);                   // enable asynchronous mode
+ 581               	.LM51:
+ 582 01fc 8091 B600 		lds r24,182
+ 583 0200 8062      		ori r24,lo8(32)
+ 584 0202 8093 B600 		sts 182,r24
+ 585 0206 88EE      		ldi r24,lo8(1000)
+ 586 0208 93E0      		ldi r25,hi8(1000)
+ 587               	.LBB39:
+ 588               	.LBB40:
+ 589               	.LBB41:
+ 590               	.LBB42:
+ 591               	.LBB43:
+ 592               	.LBB44:
+ 594               	.Ltext7:
+ 596               	.LM52:
+ 597 020a 20ED      		ldi r18,lo8(2000)
+ 598 020c 37E0      		ldi r19,hi8(2000)
+ 599               	.L33:
+ 600 020e F901      		movw r30,r18
+ 601               	/* #APP */
+ 602               	 ;  105 "/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h" 1
+ 603 0210 3197      		1: sbiw r30,1
+ 604 0212 01F4      		brne 1b
+ 605               	 ;  0 "" 2
+ 606               	/* #NOAPP */
+ 607               	.LBE44:
+ 608               	.LBE43:
+ 609               	.LBE42:
+ 610               	.LBE41:
+ 612               	.Ltext8:
+ 149:src/clock/clock.c ****    for (; ms > 0; ms--)
+ 614               	.LM53:
+ 615 0214 0197      		sbiw r24,1
+ 616 0216 01F4      		brne .L33
+ 617               	.LBE40:
+ 618               	.LBE39:
+  83:src/clock/clock.c ****    TCNT2   = 0;                            // set counter register
+ 620               	.LM54:
+ 621 0218 1092 B200 		sts 178,__zero_reg__
+  84:src/clock/clock.c ****    OCR2A   = 128 - 1;                      // 32768 / 256 / 1 = 128, interval = 1s
+ 623               	.LM55:
+ 624 021c 8FE7      		ldi r24,lo8(127)
+ 625 021e 8093 B300 		sts 179,r24
+  86:src/clock/clock.c ****    TCCR2A  = (1 << WGM21);                 // set CTC mode, TOP value = OCRA
+ 627               	.LM56:
+ 628 0222 82E0      		ldi r24,lo8(2)
+ 629 0224 8093 B000 		sts 176,r24
+  87:src/clock/clock.c ****    TCCR2B |= (1 << CS22) | (1 << CS21);    // set prescaler = 256 and start timer
+ 631               	.LM57:
+ 632 0228 8091 B100 		lds r24,177
+ 633 022c 8660      		ori r24,lo8(6)
+ 634 022e 8093 B100 		sts 177,r24
+ 635               	.L34:
+  89:src/clock/clock.c ****    while (ASSR & ((1 << OCR2AUB)|(1 << TCR2AUB)|(1 << TCR2AUB)));  // wait for registers to update
+ 637               	.LM58:
+ 638 0232 8091 B600 		lds r24,182
+ 639 0236 8A70      		andi r24,lo8(10)
+ 640 0238 01F4      		brne .L34
+  91:src/clock/clock.c ****    TIFR2   = 0;                            //clear pending interrupts
+ 642               	.LM59:
+ 643 023a 17BA      		out 55-0x20,__zero_reg__
+  92:src/clock/clock.c ****    TIMSK2 |= (1<<OCIE2A);                  // Enable Compare Interrupt
+ 645               	.LM60:
+ 646 023c 8091 7000 		lds r24,112
+ 647 0240 8260      		ori r24,lo8(2)
+ 648 0242 8093 7000 		sts 112,r24
+  94:src/clock/clock.c ****    EIMSK = 0x03;
+ 650               	.LM61:
+ 651 0246 83E0      		ldi r24,lo8(3)
+ 652 0248 8DBB      		out 61-0x20,r24
+  96:src/clock/clock.c ****    clock_displayTime(dateAndTime);
+ 654               	.LM62:
+ 655 024a 6091 0000 		lds r22,dateAndTime
+ 656 024e 7091 0000 		lds r23,dateAndTime+1
+ 657 0252 8091 0000 		lds r24,dateAndTime+2
+ 658 0256 0E94 0000 		call clock_displayTime
+ 659               	/* epilogue start */
+  97:src/clock/clock.c **** }
+ 661               	.LM63:
+ 662 025a 0895      		ret
+ 667               	.Lscope8:
+ 668               		.lcomm dateAndTime,3
+ 669               		.lcomm timerStoppedCounter,1
+ 673               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 clock.c
+     /tmp/ccz9vToq.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccz9vToq.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccz9vToq.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccz9vToq.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccz9vToq.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccz9vToq.s:132    .text:00000000 clock_halt
+     /tmp/ccz9vToq.s:668    .bss:00000003 timerStoppedCounter
+     /tmp/ccz9vToq.s:166    .text:0000001c clock_restart
+     /tmp/ccz9vToq.s:207    .text:00000044 clock_displayTime
+                             .bss:00000000 dateAndTime
+     /tmp/ccz9vToq.s:247    .text:0000007a updateDateAndTime
+     /tmp/ccz9vToq.s:305    .text:000000c4 __vector_2
+     /tmp/ccz9vToq.s:401    .text:00000128 __vector_1
+     /tmp/ccz9vToq.s:497    .text:0000018c __vector_9
+     /tmp/ccz9vToq.s:562    .text:000001ec clock_init
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+gpio_WritePort

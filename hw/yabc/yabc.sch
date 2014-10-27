@@ -16804,9 +16804,9 @@ chip 0805</description>
 Solder type</description>
 <wire x1="0.61" y1="0.66" x2="0.61" y2="0.34" width="0.1524" layer="51"/>
 <wire x1="-0.61" y1="0.66" x2="-0.61" y2="0.34" width="0.1524" layer="51"/>
-<smd name="1" x="0" y="0.938" dx="0.8" dy="1" layer="1" roundness="100"/>
-<smd name="2" x="0" y="0" dx="1" dy="0.8" layer="1" roundness="50"/>
-<smd name="3" x="0" y="-0.938" dx="0.8" dy="1" layer="1" roundness="100"/>
+<smd name="1" x="0" y="0.938" dx="0.8" dy="0.762" layer="1" roundness="100"/>
+<smd name="2" x="0" y="0" dx="0.8382" dy="0.762" layer="1" roundness="50"/>
+<smd name="3" x="0" y="-0.938" dx="0.8" dy="0.762" layer="1" roundness="100"/>
 <text x="-0.762" y="2.716" size="1.27" layer="25">&gt;NAME</text>
 <text x="-0.762" y="-3.986" size="1.27" layer="27">&gt;VALUE</text>
 <rectangle x1="-0.3235" y1="-0.6814" x2="0.3265" y2="0.7186" layer="51" rot="R270"/>
@@ -17036,6 +17036,153 @@ Low profile connectors, straight&lt;p&gt;
 </deviceset>
 </devicesets>
 </library>
+<library name="jumper">
+<description>&lt;b&gt;Jumpers&lt;/b&gt;&lt;p&gt;
+&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
+<packages>
+<package name="JP1">
+<description>&lt;b&gt;JUMPER&lt;/b&gt;</description>
+<wire x1="-1.016" y1="0" x2="-1.27" y2="0.254" width="0.1524" layer="21"/>
+<wire x1="-1.016" y1="0" x2="-1.27" y2="-0.254" width="0.1524" layer="21"/>
+<wire x1="1.016" y1="0" x2="1.27" y2="0.254" width="0.1524" layer="21"/>
+<wire x1="1.016" y1="0" x2="1.27" y2="-0.254" width="0.1524" layer="21"/>
+<wire x1="1.27" y1="-0.254" x2="1.27" y2="-2.286" width="0.1524" layer="21"/>
+<wire x1="1.016" y1="-2.54" x2="1.27" y2="-2.286" width="0.1524" layer="21"/>
+<wire x1="1.27" y1="2.286" x2="1.016" y2="2.54" width="0.1524" layer="21"/>
+<wire x1="1.27" y1="2.286" x2="1.27" y2="0.254" width="0.1524" layer="21"/>
+<wire x1="1.016" y1="2.54" x2="-1.016" y2="2.54" width="0.1524" layer="21"/>
+<wire x1="-1.27" y1="2.286" x2="-1.016" y2="2.54" width="0.1524" layer="21"/>
+<wire x1="-1.27" y1="2.286" x2="-1.27" y2="0.254" width="0.1524" layer="21"/>
+<wire x1="-1.27" y1="-0.254" x2="-1.27" y2="-2.286" width="0.1524" layer="21"/>
+<wire x1="-1.016" y1="-2.54" x2="-1.27" y2="-2.286" width="0.1524" layer="21"/>
+<wire x1="-1.016" y1="-2.54" x2="1.016" y2="-2.54" width="0.1524" layer="21"/>
+<pad name="1" x="0" y="-1.27" drill="0.9144" shape="long"/>
+<pad name="2" x="0" y="1.27" drill="0.9144" shape="long"/>
+<text x="-1.651" y="-2.54" size="1.27" layer="25" ratio="10" rot="R90">&gt;NAME</text>
+<text x="2.921" y="-2.54" size="1.27" layer="27" ratio="10" rot="R90">&gt;VALUE</text>
+<rectangle x1="-0.3048" y1="0.9652" x2="0.3048" y2="1.5748" layer="51"/>
+<rectangle x1="-0.3048" y1="-1.5748" x2="0.3048" y2="-0.9652" layer="51"/>
+</package>
+<package name="JP4">
+<description>&lt;b&gt;JUMPER&lt;/b&gt;</description>
+<wire x1="-5.08" y1="-1.016" x2="-5.08" y2="1.016" width="0.1524" layer="21"/>
+<wire x1="2.286" y1="1.27" x2="0.254" y2="1.27" width="0.1524" layer="21"/>
+<wire x1="0" y1="1.016" x2="0.254" y2="1.27" width="0.1524" layer="21"/>
+<wire x1="2.286" y1="-1.27" x2="0.254" y2="-1.27" width="0.1524" layer="21"/>
+<wire x1="0" y1="-1.016" x2="0.254" y2="-1.27" width="0.1524" layer="21"/>
+<wire x1="2.286" y1="-1.27" x2="2.54" y2="-1.016" width="0.1524" layer="21"/>
+<wire x1="2.286" y1="1.27" x2="2.54" y2="1.016" width="0.1524" layer="21"/>
+<wire x1="-0.254" y1="1.27" x2="0" y2="1.016" width="0.1524" layer="21"/>
+<wire x1="-0.254" y1="1.27" x2="-2.286" y2="1.27" width="0.1524" layer="21"/>
+<wire x1="-2.54" y1="1.016" x2="-2.286" y2="1.27" width="0.1524" layer="21"/>
+<wire x1="-2.794" y1="1.27" x2="-2.54" y2="1.016" width="0.1524" layer="21"/>
+<wire x1="-5.08" y1="1.016" x2="-4.826" y2="1.27" width="0.1524" layer="21"/>
+<wire x1="-2.794" y1="1.27" x2="-4.826" y2="1.27" width="0.1524" layer="21"/>
+<wire x1="-0.254" y1="-1.27" x2="0" y2="-1.016" width="0.1524" layer="21"/>
+<wire x1="-2.54" y1="-1.016" x2="-2.286" y2="-1.27" width="0.1524" layer="21"/>
+<wire x1="-2.794" y1="-1.27" x2="-2.54" y2="-1.016" width="0.1524" layer="21"/>
+<wire x1="-5.08" y1="-1.016" x2="-4.826" y2="-1.27" width="0.1524" layer="21"/>
+<wire x1="-0.254" y1="-1.27" x2="-2.286" y2="-1.27" width="0.1524" layer="21"/>
+<wire x1="-2.794" y1="-1.27" x2="-4.826" y2="-1.27" width="0.1524" layer="21"/>
+<wire x1="5.08" y1="1.016" x2="5.08" y2="-1.016" width="0.1524" layer="21"/>
+<wire x1="4.826" y1="1.27" x2="5.08" y2="1.016" width="0.1524" layer="21"/>
+<wire x1="4.826" y1="-1.27" x2="5.08" y2="-1.016" width="0.1524" layer="21"/>
+<wire x1="2.54" y1="-1.016" x2="2.794" y2="-1.27" width="0.1524" layer="21"/>
+<wire x1="2.54" y1="1.016" x2="2.794" y2="1.27" width="0.1524" layer="21"/>
+<wire x1="4.826" y1="1.27" x2="2.794" y2="1.27" width="0.1524" layer="21"/>
+<wire x1="4.826" y1="-1.27" x2="2.794" y2="-1.27" width="0.1524" layer="21"/>
+<pad name="1" x="-3.81" y="0" drill="0.9144" shape="long" rot="R90"/>
+<pad name="2" x="-1.27" y="0" drill="0.9144" shape="long" rot="R90"/>
+<pad name="3" x="1.27" y="0" drill="0.9144" shape="long" rot="R90"/>
+<pad name="4" x="3.81" y="0" drill="0.9144" shape="long" rot="R90"/>
+<text x="-5.08" y="1.651" size="1.27" layer="25" ratio="10">&gt;NAME</text>
+<text x="-3.81" y="-2.667" size="0.9906" layer="21" ratio="12">1</text>
+<text x="-1.27" y="-2.667" size="0.9906" layer="21" ratio="12">2</text>
+<text x="1.27" y="-2.667" size="0.9906" layer="21" ratio="12">3</text>
+<text x="3.81" y="-2.667" size="0.9906" layer="21" ratio="12">4</text>
+<text x="-5.08" y="-4.064" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
+<rectangle x1="-4.1148" y1="-0.3048" x2="-3.5052" y2="0.3048" layer="51"/>
+<rectangle x1="-1.5748" y1="-0.3048" x2="-0.9652" y2="0.3048" layer="51"/>
+<rectangle x1="0.9652" y1="-0.3048" x2="1.5748" y2="0.3048" layer="51"/>
+<rectangle x1="3.5052" y1="-0.3048" x2="4.1148" y2="0.3048" layer="51"/>
+</package>
+</packages>
+<symbols>
+<symbol name="JP2E">
+<wire x1="0" y1="0" x2="0" y2="1.27" width="0.1524" layer="94"/>
+<wire x1="0" y1="2.54" x2="0" y2="1.27" width="0.4064" layer="94"/>
+<wire x1="2.54" y1="0" x2="2.54" y2="1.27" width="0.1524" layer="94"/>
+<wire x1="2.54" y1="2.54" x2="2.54" y2="1.27" width="0.4064" layer="94"/>
+<wire x1="-0.635" y1="0" x2="3.175" y2="0" width="0.4064" layer="94"/>
+<wire x1="3.175" y1="0" x2="3.175" y2="0.635" width="0.4064" layer="94"/>
+<wire x1="3.175" y1="0.635" x2="-0.635" y2="0.635" width="0.4064" layer="94"/>
+<wire x1="-0.635" y1="0.635" x2="-0.635" y2="0" width="0.4064" layer="94"/>
+<text x="-1.27" y="0" size="1.778" layer="95" rot="R90">&gt;NAME</text>
+<text x="5.715" y="0" size="1.778" layer="96" rot="R90">&gt;VALUE</text>
+<pin name="1" x="0" y="-2.54" visible="pad" length="short" direction="pas" rot="R90"/>
+<pin name="2" x="2.54" y="-2.54" visible="pad" length="short" direction="pas" rot="R90"/>
+</symbol>
+<symbol name="JP4E">
+<wire x1="2.54" y1="0" x2="2.54" y2="1.27" width="0.1524" layer="94"/>
+<wire x1="0" y1="0" x2="0" y2="1.27" width="0.1524" layer="94"/>
+<wire x1="-2.54" y1="0" x2="-2.54" y2="1.27" width="0.1524" layer="94"/>
+<wire x1="2.54" y1="2.54" x2="2.54" y2="1.27" width="0.4064" layer="94"/>
+<wire x1="0" y1="2.54" x2="0" y2="1.27" width="0.4064" layer="94"/>
+<wire x1="-2.54" y1="2.54" x2="-2.54" y2="1.27" width="0.4064" layer="94"/>
+<wire x1="-3.175" y1="0" x2="5.08" y2="0" width="0.4064" layer="94"/>
+<wire x1="5.08" y1="0" x2="5.715" y2="0" width="0.4064" layer="94"/>
+<wire x1="5.715" y1="0" x2="5.715" y2="0.635" width="0.4064" layer="94"/>
+<wire x1="5.715" y1="0.635" x2="-3.175" y2="0.635" width="0.4064" layer="94"/>
+<wire x1="-3.175" y1="0.635" x2="-3.175" y2="0" width="0.4064" layer="94"/>
+<wire x1="5.08" y1="2.54" x2="5.08" y2="1.27" width="0.4064" layer="94"/>
+<wire x1="5.08" y1="0" x2="5.08" y2="1.27" width="0.1524" layer="94"/>
+<text x="-3.81" y="0" size="1.778" layer="95" rot="R90">&gt;NAME</text>
+<text x="8.255" y="0" size="1.778" layer="96" rot="R90">&gt;VALUE</text>
+<pin name="1" x="-2.54" y="-2.54" visible="pad" length="short" direction="pas" rot="R90"/>
+<pin name="2" x="0" y="-2.54" visible="pad" length="short" direction="pas" rot="R90"/>
+<pin name="3" x="2.54" y="-2.54" visible="pad" length="short" direction="pas" rot="R90"/>
+<pin name="4" x="5.08" y="-2.54" visible="pad" length="short" direction="pas" rot="R90"/>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="JP1E" prefix="JP" uservalue="yes">
+<description>&lt;b&gt;JUMPER&lt;/b&gt;</description>
+<gates>
+<gate name="A" symbol="JP2E" x="2.54" y="0"/>
+</gates>
+<devices>
+<device name="" package="JP1">
+<connects>
+<connect gate="A" pin="1" pad="1"/>
+<connect gate="A" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="JP4E" prefix="JP" uservalue="yes">
+<description>&lt;b&gt;JUMPER&lt;/b&gt;</description>
+<gates>
+<gate name="G$1" symbol="JP4E" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="JP4">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+<connect gate="G$1" pin="3" pad="3"/>
+<connect gate="G$1" pin="4" pad="4"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
 </libraries>
 <attributes>
 </attributes>
@@ -17052,7 +17199,7 @@ Low profile connectors, straight&lt;p&gt;
 <part name="S1" library="switch-omron" deviceset="10-XX" device=""/>
 <part name="J1" library="con-jack" deviceset="DCJ0202" device=""/>
 <part name="IC2" library="v-reg" deviceset="LM317?*" device="MBSTT3" value="LM1117-5V"/>
-<part name="LED1" library="led" deviceset="LED" device="10MM"/>
+<part name="LED_H5/2" library="led" deviceset="LED" device="10MM"/>
 <part name="SV1" library="con-lstb" deviceset="MA08-1W" device=""/>
 <part name="SV2" library="con-lsta" deviceset="FE08W" device=""/>
 <part name="SV3" library="con-lstb" deviceset="MA08-1W" device=""/>
@@ -17113,35 +17260,35 @@ Low profile connectors, straight&lt;p&gt;
 <part name="GND21" library="supply1" deviceset="GND" device=""/>
 <part name="P+12" library="supply1" deviceset="+5V" device=""/>
 <part name="JMP1" library="jump-0r-smd" deviceset="0R-JUMP" device="C"/>
-<part name="LED2" library="led" deviceset="LED" device="10MM"/>
+<part name="LED_H4/1" library="led" deviceset="LED" device="10MM"/>
 <part name="H4/1" library="transistor-npn" deviceset="BC847*" device="SMD" technology="A"/>
 <part name="R6" library="rcl" deviceset="R-EU_" device="R0805" value="250R"/>
 <part name="R7" library="rcl" deviceset="R-EU_" device="R0603" value="3k"/>
 <part name="GND22" library="supply1" deviceset="GND" device=""/>
 <part name="P+13" library="supply1" deviceset="+5V" device=""/>
 <part name="JMP2" library="jump-0r-smd" deviceset="0R-JUMP" device="C"/>
-<part name="LED3" library="led" deviceset="LED" device="10MM"/>
+<part name="LED_M5/2" library="led" deviceset="LED" device="10MM"/>
 <part name="M5/2" library="transistor-npn" deviceset="BC847*" device="SMD" technology="A"/>
 <part name="R8" library="rcl" deviceset="R-EU_" device="R0805" value="250R"/>
 <part name="R9" library="rcl" deviceset="R-EU_" device="R0603" value="3k"/>
 <part name="GND23" library="supply1" deviceset="GND" device=""/>
 <part name="P+14" library="supply1" deviceset="+5V" device=""/>
 <part name="JMP3" library="jump-0r-smd" deviceset="0R-JUMP" device="C"/>
-<part name="LED4" library="led" deviceset="LED" device="10MM"/>
+<part name="LED_M4/1" library="led" deviceset="LED" device="10MM"/>
 <part name="M4/1" library="transistor-npn" deviceset="BC847*" device="SMD" technology="A"/>
 <part name="R10" library="rcl" deviceset="R-EU_" device="R0805" value="250R"/>
 <part name="R11" library="rcl" deviceset="R-EU_" device="R0603" value="3k"/>
 <part name="GND24" library="supply1" deviceset="GND" device=""/>
 <part name="P+15" library="supply1" deviceset="+5V" device=""/>
 <part name="JMP4" library="jump-0r-smd" deviceset="0R-JUMP" device="C"/>
-<part name="LED5" library="led" deviceset="LED" device="10MM"/>
+<part name="LED_H3/0" library="led" deviceset="LED" device="10MM"/>
 <part name="H3/0" library="transistor-npn" deviceset="BC847*" device="SMD" technology="A"/>
 <part name="R12" library="rcl" deviceset="R-EU_" device="R0805" value="250R"/>
 <part name="R13" library="rcl" deviceset="R-EU_" device="R0603" value="3k"/>
 <part name="GND25" library="supply1" deviceset="GND" device=""/>
 <part name="P+16" library="supply1" deviceset="+5V" device=""/>
 <part name="JMP5" library="jump-0r-smd" deviceset="0R-JUMP" device="C"/>
-<part name="LED6" library="led" deviceset="LED" device="10MM"/>
+<part name="LED_M3/0" library="led" deviceset="LED" device="10MM"/>
 <part name="M3/0" library="transistor-npn" deviceset="BC847*" device="SMD" technology="A"/>
 <part name="R14" library="rcl" deviceset="R-EU_" device="R0805" value="250R"/>
 <part name="R15" library="rcl" deviceset="R-EU_" device="R0603" value="3k"/>
@@ -17149,6 +17296,9 @@ Low profile connectors, straight&lt;p&gt;
 <part name="P+17" library="supply1" deviceset="+5V" device=""/>
 <part name="JMP6" library="jump-0r-smd" deviceset="0R-JUMP" device="C"/>
 <part name="SV5" library="con-ml" deviceset="ML10" device=""/>
+<part name="JP1" library="jumper" deviceset="JP1E" device=""/>
+<part name="JP2" library="jumper" deviceset="JP1E" device=""/>
+<part name="JP3" library="jumper" deviceset="JP4E" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -17161,7 +17311,7 @@ Low profile connectors, straight&lt;p&gt;
 <instance part="S1" gate="1" x="-17.78" y="81.28" rot="R270"/>
 <instance part="J1" gate="G$1" x="-40.64" y="127"/>
 <instance part="IC2" gate="G$1" x="-12.7" y="129.54"/>
-<instance part="LED1" gate="G$1" x="127" y="160.02"/>
+<instance part="LED_H5/2" gate="G$1" x="127" y="160.02"/>
 <instance part="SV1" gate="1" x="142.24" y="30.48" rot="MR90"/>
 <instance part="SV2" gate="G$1" x="172.72" y="30.48" rot="R90"/>
 <instance part="SV3" gate="1" x="142.24" y="5.08" rot="MR90"/>
@@ -17225,7 +17375,7 @@ Low profile connectors, straight&lt;p&gt;
 <attribute name="NAME" x="91.44" y="146.05" size="1.778" layer="95"/>
 </instance>
 <instance part="JMP1" gate="G$2" x="104.14" y="149.86"/>
-<instance part="LED2" gate="G$1" x="177.8" y="160.02"/>
+<instance part="LED_H4/1" gate="G$1" x="177.8" y="160.02"/>
 <instance part="H4/1" gate="G$1" x="175.26" y="147.32"/>
 <instance part="R6" gate="G$1" x="177.8" y="170.18" rot="R90"/>
 <instance part="R7" gate="G$1" x="165.1" y="147.32"/>
@@ -17235,7 +17385,7 @@ Low profile connectors, straight&lt;p&gt;
 <attribute name="NAME" x="142.24" y="146.05" size="1.778" layer="95"/>
 </instance>
 <instance part="JMP2" gate="G$2" x="154.94" y="149.86"/>
-<instance part="LED3" gate="G$1" x="127" y="109.22"/>
+<instance part="LED_M5/2" gate="G$1" x="127" y="109.22"/>
 <instance part="M5/2" gate="G$1" x="124.46" y="96.52"/>
 <instance part="R8" gate="G$1" x="127" y="119.38" rot="R90"/>
 <instance part="R9" gate="G$1" x="114.3" y="96.52"/>
@@ -17245,7 +17395,7 @@ Low profile connectors, straight&lt;p&gt;
 <attribute name="NAME" x="91.44" y="95.25" size="1.778" layer="95"/>
 </instance>
 <instance part="JMP3" gate="G$2" x="104.14" y="99.06"/>
-<instance part="LED4" gate="G$1" x="177.8" y="109.22"/>
+<instance part="LED_M4/1" gate="G$1" x="177.8" y="109.22"/>
 <instance part="M4/1" gate="G$1" x="175.26" y="96.52"/>
 <instance part="R10" gate="G$1" x="177.8" y="119.38" rot="R90"/>
 <instance part="R11" gate="G$1" x="165.1" y="96.52"/>
@@ -17255,7 +17405,7 @@ Low profile connectors, straight&lt;p&gt;
 <attribute name="NAME" x="142.24" y="95.25" size="1.778" layer="95"/>
 </instance>
 <instance part="JMP4" gate="G$2" x="154.94" y="99.06"/>
-<instance part="LED5" gate="G$1" x="233.68" y="160.02"/>
+<instance part="LED_H3/0" gate="G$1" x="233.68" y="160.02"/>
 <instance part="H3/0" gate="G$1" x="231.14" y="147.32"/>
 <instance part="R12" gate="G$1" x="233.68" y="170.18" rot="R90"/>
 <instance part="R13" gate="G$1" x="220.98" y="147.32"/>
@@ -17265,7 +17415,7 @@ Low profile connectors, straight&lt;p&gt;
 <attribute name="NAME" x="198.12" y="146.05" size="1.778" layer="95"/>
 </instance>
 <instance part="JMP5" gate="G$2" x="210.82" y="149.86"/>
-<instance part="LED6" gate="G$1" x="233.68" y="109.22"/>
+<instance part="LED_M3/0" gate="G$1" x="233.68" y="109.22"/>
 <instance part="M3/0" gate="G$1" x="231.14" y="96.52"/>
 <instance part="R14" gate="G$1" x="233.68" y="119.38" rot="R90"/>
 <instance part="R15" gate="G$1" x="220.98" y="96.52"/>
@@ -17276,6 +17426,9 @@ Low profile connectors, straight&lt;p&gt;
 </instance>
 <instance part="JMP6" gate="G$2" x="210.82" y="99.06"/>
 <instance part="SV5" gate="G$1" x="81.28" y="-25.4" rot="R180"/>
+<instance part="JP1" gate="A" x="124.46" y="-25.4" rot="R90"/>
+<instance part="JP2" gate="A" x="124.46" y="-17.78" rot="R90"/>
+<instance part="JP3" gate="G$1" x="124.46" y="-35.56" rot="R90"/>
 </instances>
 <busses>
 </busses>
@@ -17488,6 +17641,21 @@ Low profile connectors, straight&lt;p&gt;
 <wire x1="88.9" y1="-30.48" x2="91.44" y2="-30.48" width="0.1524" layer="91"/>
 <label x="91.44" y="-30.48" size="1.27" layer="95" xref="yes"/>
 </segment>
+<segment>
+<pinref part="JP2" gate="A" pin="1"/>
+<wire x1="127" y1="-17.78" x2="129.54" y2="-17.78" width="0.1524" layer="91"/>
+<label x="129.54" y="-17.78" size="1.27" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="JP1" gate="A" pin="1"/>
+<wire x1="127" y1="-25.4" x2="129.54" y2="-25.4" width="0.1524" layer="91"/>
+<label x="129.54" y="-25.4" size="1.27" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="JP3" gate="G$1" pin="2"/>
+<wire x1="127" y1="-35.56" x2="129.54" y2="-35.56" width="0.1524" layer="91"/>
+<label x="129.54" y="-35.56" size="1.27" layer="95" xref="yes"/>
+</segment>
 </net>
 <net name="N$5" class="0">
 <segment>
@@ -17648,6 +17816,21 @@ Low profile connectors, straight&lt;p&gt;
 <pinref part="SV5" gate="G$1" pin="4"/>
 <wire x1="88.9" y1="-22.86" x2="91.44" y2="-22.86" width="0.1524" layer="91"/>
 <label x="91.44" y="-22.86" size="1.27" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="JP2" gate="A" pin="2"/>
+<wire x1="127" y1="-15.24" x2="129.54" y2="-15.24" width="0.1524" layer="91"/>
+<label x="129.54" y="-15.24" size="1.27" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="JP1" gate="A" pin="2"/>
+<wire x1="127" y1="-22.86" x2="129.54" y2="-22.86" width="0.1524" layer="91"/>
+<label x="129.54" y="-22.86" size="1.27" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="JP3" gate="G$1" pin="1"/>
+<wire x1="127" y1="-38.1" x2="129.54" y2="-38.1" width="0.1524" layer="91"/>
+<label x="129.54" y="-38.1" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="N$10" class="0">
@@ -18114,12 +18297,22 @@ Low profile connectors, straight&lt;p&gt;
 <wire x1="66.04" y1="30.48" x2="68.58" y2="30.48" width="0.1524" layer="91"/>
 <label x="68.58" y="30.48" size="1.27" layer="95" xref="yes"/>
 </segment>
+<segment>
+<wire x1="127" y1="-33.02" x2="129.54" y2="-33.02" width="0.1524" layer="91"/>
+<label x="129.54" y="-33.02" size="1.27" layer="95" xref="yes"/>
+<pinref part="JP3" gate="G$1" pin="3"/>
+</segment>
 </net>
 <net name="SCL" class="0">
 <segment>
 <pinref part="IC1" gate="G$1" pin="(PCINT16/SCL)PC0"/>
 <wire x1="66.04" y1="27.94" x2="68.58" y2="27.94" width="0.1524" layer="91"/>
 <label x="68.58" y="27.94" size="1.27" layer="95" xref="yes"/>
+</segment>
+<segment>
+<wire x1="127" y1="-30.48" x2="129.54" y2="-30.48" width="0.1524" layer="91"/>
+<label x="129.54" y="-30.48" size="1.27" layer="95" xref="yes"/>
+<pinref part="JP3" gate="G$1" pin="4"/>
 </segment>
 </net>
 <net name="OC2A" class="0">
@@ -18162,13 +18355,13 @@ Low profile connectors, straight&lt;p&gt;
 <net name="N$6" class="0">
 <segment>
 <pinref part="R4" gate="G$1" pin="1"/>
-<pinref part="LED1" gate="G$1" pin="A"/>
+<pinref part="LED_H5/2" gate="G$1" pin="A"/>
 <wire x1="127" y1="165.1" x2="127" y2="162.56" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$9" class="0">
 <segment>
-<pinref part="LED1" gate="G$1" pin="C"/>
+<pinref part="LED_H5/2" gate="G$1" pin="C"/>
 <pinref part="H5/2" gate="G$1" pin="C"/>
 <wire x1="127" y1="154.94" x2="127" y2="152.4" width="0.1524" layer="91"/>
 </segment>
@@ -18189,13 +18382,13 @@ Low profile connectors, straight&lt;p&gt;
 <net name="N$18" class="0">
 <segment>
 <pinref part="R6" gate="G$1" pin="1"/>
-<pinref part="LED2" gate="G$1" pin="A"/>
+<pinref part="LED_H4/1" gate="G$1" pin="A"/>
 <wire x1="177.8" y1="165.1" x2="177.8" y2="162.56" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$19" class="0">
 <segment>
-<pinref part="LED2" gate="G$1" pin="C"/>
+<pinref part="LED_H4/1" gate="G$1" pin="C"/>
 <pinref part="H4/1" gate="G$1" pin="C"/>
 <wire x1="177.8" y1="154.94" x2="177.8" y2="152.4" width="0.1524" layer="91"/>
 </segment>
@@ -18216,13 +18409,13 @@ Low profile connectors, straight&lt;p&gt;
 <net name="N$22" class="0">
 <segment>
 <pinref part="R8" gate="G$1" pin="1"/>
-<pinref part="LED3" gate="G$1" pin="A"/>
+<pinref part="LED_M5/2" gate="G$1" pin="A"/>
 <wire x1="127" y1="114.3" x2="127" y2="111.76" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$23" class="0">
 <segment>
-<pinref part="LED3" gate="G$1" pin="C"/>
+<pinref part="LED_M5/2" gate="G$1" pin="C"/>
 <pinref part="M5/2" gate="G$1" pin="C"/>
 <wire x1="127" y1="104.14" x2="127" y2="101.6" width="0.1524" layer="91"/>
 </segment>
@@ -18243,13 +18436,13 @@ Low profile connectors, straight&lt;p&gt;
 <net name="N$26" class="0">
 <segment>
 <pinref part="R10" gate="G$1" pin="1"/>
-<pinref part="LED4" gate="G$1" pin="A"/>
+<pinref part="LED_M4/1" gate="G$1" pin="A"/>
 <wire x1="177.8" y1="114.3" x2="177.8" y2="111.76" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$27" class="0">
 <segment>
-<pinref part="LED4" gate="G$1" pin="C"/>
+<pinref part="LED_M4/1" gate="G$1" pin="C"/>
 <pinref part="M4/1" gate="G$1" pin="C"/>
 <wire x1="177.8" y1="104.14" x2="177.8" y2="101.6" width="0.1524" layer="91"/>
 </segment>
@@ -18270,13 +18463,13 @@ Low profile connectors, straight&lt;p&gt;
 <net name="N$30" class="0">
 <segment>
 <pinref part="R12" gate="G$1" pin="1"/>
-<pinref part="LED5" gate="G$1" pin="A"/>
+<pinref part="LED_H3/0" gate="G$1" pin="A"/>
 <wire x1="233.68" y1="165.1" x2="233.68" y2="162.56" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$31" class="0">
 <segment>
-<pinref part="LED5" gate="G$1" pin="C"/>
+<pinref part="LED_H3/0" gate="G$1" pin="C"/>
 <pinref part="H3/0" gate="G$1" pin="C"/>
 <wire x1="233.68" y1="154.94" x2="233.68" y2="152.4" width="0.1524" layer="91"/>
 </segment>
@@ -18297,13 +18490,13 @@ Low profile connectors, straight&lt;p&gt;
 <net name="N$34" class="0">
 <segment>
 <pinref part="R14" gate="G$1" pin="1"/>
-<pinref part="LED6" gate="G$1" pin="A"/>
+<pinref part="LED_M3/0" gate="G$1" pin="A"/>
 <wire x1="233.68" y1="114.3" x2="233.68" y2="111.76" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$35" class="0">
 <segment>
-<pinref part="LED6" gate="G$1" pin="C"/>
+<pinref part="LED_M3/0" gate="G$1" pin="C"/>
 <pinref part="M3/0" gate="G$1" pin="C"/>
 <wire x1="233.68" y1="104.14" x2="233.68" y2="101.6" width="0.1524" layer="91"/>
 </segment>

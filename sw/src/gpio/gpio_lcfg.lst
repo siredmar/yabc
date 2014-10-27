@@ -1,0 +1,383 @@
+   1               		.file	"gpio_lcfg.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.global __do_copy_data
+   8               		.global __do_clear_bss
+  10               		.text
+  11               	.Ltext0:
+ 124               	.global	gpio_getlcfgdata
+ 126               	gpio_getlcfgdata:
+   1:src/gpio/gpio_lcfg.c **** #include "gpio.h"
+   2:src/gpio/gpio_lcfg.c **** #include "gpio_lcfg.h"
+   3:src/gpio/gpio_lcfg.c **** 
+   4:src/gpio/gpio_lcfg.c **** const gpio_ConfigType gpio_initialConfiguration_s =
+   5:src/gpio/gpio_lcfg.c **** {
+   6:src/gpio/gpio_lcfg.c ****       {   /* PORT A */
+   7:src/gpio/gpio_lcfg.c ****             {
+   8:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+   9:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PA0,
+  10:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+  11:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+  12:src/gpio/gpio_lcfg.c ****             },
+  13:src/gpio/gpio_lcfg.c ****             {
+  14:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+  15:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PA1,
+  16:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+  17:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+  18:src/gpio/gpio_lcfg.c ****             },
+  19:src/gpio/gpio_lcfg.c ****             {
+  20:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+  21:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PA2,
+  22:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+  23:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+  24:src/gpio/gpio_lcfg.c ****             },
+  25:src/gpio/gpio_lcfg.c ****             {
+  26:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+  27:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PA3,
+  28:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+  29:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+  30:src/gpio/gpio_lcfg.c ****             },
+  31:src/gpio/gpio_lcfg.c ****             {
+  32:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+  33:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PA4,
+  34:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+  35:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+  36:src/gpio/gpio_lcfg.c ****             },
+  37:src/gpio/gpio_lcfg.c ****             {
+  38:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+  39:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PA5,
+  40:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+  41:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+  42:src/gpio/gpio_lcfg.c ****             },
+  43:src/gpio/gpio_lcfg.c ****             {
+  44:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+  45:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PA6,
+  46:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+  47:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+  48:src/gpio/gpio_lcfg.c ****             },
+  49:src/gpio/gpio_lcfg.c ****             {
+  50:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+  51:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PA7,
+  52:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+  53:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+  54:src/gpio/gpio_lcfg.c ****             },
+  55:src/gpio/gpio_lcfg.c **** 
+  56:src/gpio/gpio_lcfg.c ****        /* PORT B */
+  57:src/gpio/gpio_lcfg.c ****             {
+  58:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+  59:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PB0,
+  60:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+  61:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+  62:src/gpio/gpio_lcfg.c ****             },
+  63:src/gpio/gpio_lcfg.c ****             {
+  64:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+  65:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PB1,
+  66:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+  67:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+  68:src/gpio/gpio_lcfg.c ****             },
+  69:src/gpio/gpio_lcfg.c ****             {
+  70:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+  71:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PB2,
+  72:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+  73:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+  74:src/gpio/gpio_lcfg.c ****             },
+  75:src/gpio/gpio_lcfg.c ****             {
+  76:src/gpio/gpio_lcfg.c ****                   GPIO_FALSE,
+  77:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PB3,
+  78:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+  79:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+  80:src/gpio/gpio_lcfg.c ****             },
+  81:src/gpio/gpio_lcfg.c ****             {
+  82:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+  83:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PB4,
+  84:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+  85:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+  86:src/gpio/gpio_lcfg.c ****             },
+  87:src/gpio/gpio_lcfg.c ****             {
+  88:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+  89:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PB5,
+  90:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+  91:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+  92:src/gpio/gpio_lcfg.c ****             },
+  93:src/gpio/gpio_lcfg.c ****             {
+  94:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+  95:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PB6,
+  96:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+  97:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+  98:src/gpio/gpio_lcfg.c ****             },
+  99:src/gpio/gpio_lcfg.c ****             {
+ 100:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+ 101:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PB7,
+ 102:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+ 103:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+ 104:src/gpio/gpio_lcfg.c ****             },
+ 105:src/gpio/gpio_lcfg.c **** 
+ 106:src/gpio/gpio_lcfg.c ****       /* PORT C */
+ 107:src/gpio/gpio_lcfg.c ****             {
+ 108:src/gpio/gpio_lcfg.c ****                   GPIO_FALSE,
+ 109:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PC0,
+ 110:src/gpio/gpio_lcfg.c ****                   GPIO_INPUT,
+ 111:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_HIGH
+ 112:src/gpio/gpio_lcfg.c ****             },
+ 113:src/gpio/gpio_lcfg.c ****             {
+ 114:src/gpio/gpio_lcfg.c ****                   GPIO_FALSE,
+ 115:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PC1,
+ 116:src/gpio/gpio_lcfg.c ****                   GPIO_INPUT,
+ 117:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_HIGH
+ 118:src/gpio/gpio_lcfg.c ****             },
+ 119:src/gpio/gpio_lcfg.c ****             {
+ 120:src/gpio/gpio_lcfg.c ****                   GPIO_FALSE,
+ 121:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PC2,
+ 122:src/gpio/gpio_lcfg.c ****                   GPIO_INPUT,
+ 123:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_HIGH
+ 124:src/gpio/gpio_lcfg.c ****             },
+ 125:src/gpio/gpio_lcfg.c ****             {
+ 126:src/gpio/gpio_lcfg.c ****                   GPIO_FALSE,
+ 127:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PC3,
+ 128:src/gpio/gpio_lcfg.c ****                   GPIO_INPUT,
+ 129:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_HIGH
+ 130:src/gpio/gpio_lcfg.c ****             },
+ 131:src/gpio/gpio_lcfg.c ****             {
+ 132:src/gpio/gpio_lcfg.c ****                   GPIO_FALSE,
+ 133:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PC4,
+ 134:src/gpio/gpio_lcfg.c ****                   GPIO_INPUT,
+ 135:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_HIGH
+ 136:src/gpio/gpio_lcfg.c ****             },
+ 137:src/gpio/gpio_lcfg.c ****             {
+ 138:src/gpio/gpio_lcfg.c ****                   GPIO_FALSE,
+ 139:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PC5,
+ 140:src/gpio/gpio_lcfg.c ****                   GPIO_INPUT,
+ 141:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_HIGH
+ 142:src/gpio/gpio_lcfg.c ****             },
+ 143:src/gpio/gpio_lcfg.c ****             {
+ 144:src/gpio/gpio_lcfg.c ****                   GPIO_FALSE,
+ 145:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PC6,
+ 146:src/gpio/gpio_lcfg.c ****                   GPIO_INPUT,
+ 147:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_HIGH
+ 148:src/gpio/gpio_lcfg.c ****             },
+ 149:src/gpio/gpio_lcfg.c ****             {
+ 150:src/gpio/gpio_lcfg.c ****                   GPIO_FALSE,
+ 151:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PC7,
+ 152:src/gpio/gpio_lcfg.c ****                   GPIO_INPUT,
+ 153:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_HIGH
+ 154:src/gpio/gpio_lcfg.c ****             },
+ 155:src/gpio/gpio_lcfg.c **** 
+ 156:src/gpio/gpio_lcfg.c ****       /* PORT D */
+ 157:src/gpio/gpio_lcfg.c ****             {
+ 158:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+ 159:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PD0,
+ 160:src/gpio/gpio_lcfg.c ****                   GPIO_INPUT,
+ 161:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_HIGH
+ 162:src/gpio/gpio_lcfg.c ****             },
+ 163:src/gpio/gpio_lcfg.c ****             {
+ 164:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+ 165:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PD1,
+ 166:src/gpio/gpio_lcfg.c ****                   GPIO_INPUT,
+ 167:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_HIGH
+ 168:src/gpio/gpio_lcfg.c ****             },
+ 169:src/gpio/gpio_lcfg.c ****             {
+ 170:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+ 171:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PD2,
+ 172:src/gpio/gpio_lcfg.c ****                   GPIO_INPUT,
+ 173:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_HIGH
+ 174:src/gpio/gpio_lcfg.c ****             },
+ 175:src/gpio/gpio_lcfg.c ****             {
+ 176:src/gpio/gpio_lcfg.c ****                   GPIO_TRUE,
+ 177:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PD3,
+ 178:src/gpio/gpio_lcfg.c ****                   GPIO_INPUT,
+ 179:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_HIGH
+ 180:src/gpio/gpio_lcfg.c ****             },
+ 181:src/gpio/gpio_lcfg.c ****             {
+ 182:src/gpio/gpio_lcfg.c ****                   GPIO_FALSE,
+ 183:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PD4,
+ 184:src/gpio/gpio_lcfg.c ****                   GPIO_INPUT,
+ 185:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_HIGH
+ 186:src/gpio/gpio_lcfg.c ****             },
+ 187:src/gpio/gpio_lcfg.c ****             {
+ 188:src/gpio/gpio_lcfg.c ****                   GPIO_FALSE,
+ 189:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PD5,
+ 190:src/gpio/gpio_lcfg.c ****                   GPIO_INPUT,
+ 191:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_HIGH
+ 192:src/gpio/gpio_lcfg.c ****             },
+ 193:src/gpio/gpio_lcfg.c ****             {
+ 194:src/gpio/gpio_lcfg.c ****                   GPIO_FALSE,
+ 195:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PD6,
+ 196:src/gpio/gpio_lcfg.c ****                   GPIO_OUTPUT,
+ 197:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_LOW
+ 198:src/gpio/gpio_lcfg.c ****             },
+ 199:src/gpio/gpio_lcfg.c ****             {
+ 200:src/gpio/gpio_lcfg.c ****                   GPIO_FALSE,
+ 201:src/gpio/gpio_lcfg.c ****                   GPIO_CHANNEL_PD7,
+ 202:src/gpio/gpio_lcfg.c ****                   GPIO_INPUT,
+ 203:src/gpio/gpio_lcfg.c ****                   GPIO_PIN_INITIAL_HIGH
+ 204:src/gpio/gpio_lcfg.c ****             },
+ 205:src/gpio/gpio_lcfg.c ****       }
+ 206:src/gpio/gpio_lcfg.c **** };
+ 207:src/gpio/gpio_lcfg.c **** 
+ 208:src/gpio/gpio_lcfg.c **** 
+ 209:src/gpio/gpio_lcfg.c **** 
+ 210:src/gpio/gpio_lcfg.c **** 
+ 211:src/gpio/gpio_lcfg.c **** 
+ 212:src/gpio/gpio_lcfg.c **** const void *gpio_getlcfgdata(void)
+ 213:src/gpio/gpio_lcfg.c **** {
+ 128               	.LM0:
+ 129               	.LFBB1:
+ 130               	/* prologue: function */
+ 131               	/* frame size = 0 */
+ 214:src/gpio/gpio_lcfg.c ****    return ((const void *) &gpio_initialConfiguration_s);
+ 215:src/gpio/gpio_lcfg.c **** }
+ 133               	.LM1:
+ 134 0000 80E0      		ldi r24,lo8(gpio_initialConfiguration_s)
+ 135 0002 90E0      		ldi r25,hi8(gpio_initialConfiguration_s)
+ 136               	/* epilogue start */
+ 137 0004 0895      		ret
+ 139               	.Lscope1:
+ 140               	.global	gpio_initialConfiguration_s
+ 141               		.data
+ 144               	gpio_initialConfiguration_s:
+ 145 0000 0100      		.word	1
+ 146 0002 0000      		.word	0
+ 147 0004 0100      		.word	1
+ 148 0006 0000      		.word	0
+ 149 0008 0100      		.word	1
+ 150 000a 0100      		.word	1
+ 151 000c 0100      		.word	1
+ 152 000e 0000      		.word	0
+ 153 0010 0100      		.word	1
+ 154 0012 0200      		.word	2
+ 155 0014 0100      		.word	1
+ 156 0016 0000      		.word	0
+ 157 0018 0100      		.word	1
+ 158 001a 0300      		.word	3
+ 159 001c 0100      		.word	1
+ 160 001e 0000      		.word	0
+ 161 0020 0100      		.word	1
+ 162 0022 0400      		.word	4
+ 163 0024 0100      		.word	1
+ 164 0026 0000      		.word	0
+ 165 0028 0100      		.word	1
+ 166 002a 0500      		.word	5
+ 167 002c 0100      		.word	1
+ 168 002e 0000      		.word	0
+ 169 0030 0100      		.word	1
+ 170 0032 0600      		.word	6
+ 171 0034 0100      		.word	1
+ 172 0036 0000      		.word	0
+ 173 0038 0100      		.word	1
+ 174 003a 0700      		.word	7
+ 175 003c 0100      		.word	1
+ 176 003e 0000      		.word	0
+ 177 0040 0100      		.word	1
+ 178 0042 0001      		.word	256
+ 179 0044 0100      		.word	1
+ 180 0046 0000      		.word	0
+ 181 0048 0100      		.word	1
+ 182 004a 0101      		.word	257
+ 183 004c 0100      		.word	1
+ 184 004e 0000      		.word	0
+ 185 0050 0100      		.word	1
+ 186 0052 0201      		.word	258
+ 187 0054 0100      		.word	1
+ 188 0056 0000      		.word	0
+ 189 0058 0000      		.word	0
+ 190 005a 0301      		.word	259
+ 191 005c 0100      		.word	1
+ 192 005e 0000      		.word	0
+ 193 0060 0100      		.word	1
+ 194 0062 0401      		.word	260
+ 195 0064 0100      		.word	1
+ 196 0066 0000      		.word	0
+ 197 0068 0100      		.word	1
+ 198 006a 0501      		.word	261
+ 199 006c 0100      		.word	1
+ 200 006e 0000      		.word	0
+ 201 0070 0100      		.word	1
+ 202 0072 0601      		.word	262
+ 203 0074 0100      		.word	1
+ 204 0076 0000      		.word	0
+ 205 0078 0100      		.word	1
+ 206 007a 0701      		.word	263
+ 207 007c 0100      		.word	1
+ 208 007e 0000      		.word	0
+ 209 0080 0000      		.word	0
+ 210 0082 0002      		.word	512
+ 211 0084 0000      		.word	0
+ 212 0086 0100      		.word	1
+ 213 0088 0000      		.word	0
+ 214 008a 0102      		.word	513
+ 215 008c 0000      		.word	0
+ 216 008e 0100      		.word	1
+ 217 0090 0000      		.word	0
+ 218 0092 0202      		.word	514
+ 219 0094 0000      		.word	0
+ 220 0096 0100      		.word	1
+ 221 0098 0000      		.word	0
+ 222 009a 0302      		.word	515
+ 223 009c 0000      		.word	0
+ 224 009e 0100      		.word	1
+ 225 00a0 0000      		.word	0
+ 226 00a2 0402      		.word	516
+ 227 00a4 0000      		.word	0
+ 228 00a6 0100      		.word	1
+ 229 00a8 0000      		.word	0
+ 230 00aa 0502      		.word	517
+ 231 00ac 0000      		.word	0
+ 232 00ae 0100      		.word	1
+ 233 00b0 0000      		.word	0
+ 234 00b2 0602      		.word	518
+ 235 00b4 0000      		.word	0
+ 236 00b6 0100      		.word	1
+ 237 00b8 0000      		.word	0
+ 238 00ba 0702      		.word	519
+ 239 00bc 0000      		.word	0
+ 240 00be 0100      		.word	1
+ 241 00c0 0100      		.word	1
+ 242 00c2 0003      		.word	768
+ 243 00c4 0000      		.word	0
+ 244 00c6 0100      		.word	1
+ 245 00c8 0100      		.word	1
+ 246 00ca 0103      		.word	769
+ 247 00cc 0000      		.word	0
+ 248 00ce 0100      		.word	1
+ 249 00d0 0100      		.word	1
+ 250 00d2 0203      		.word	770
+ 251 00d4 0000      		.word	0
+ 252 00d6 0100      		.word	1
+ 253 00d8 0100      		.word	1
+ 254 00da 0303      		.word	771
+ 255 00dc 0000      		.word	0
+ 256 00de 0100      		.word	1
+ 257 00e0 0000      		.word	0
+ 258 00e2 0403      		.word	772
+ 259 00e4 0000      		.word	0
+ 260 00e6 0100      		.word	1
+ 261 00e8 0000      		.word	0
+ 262 00ea 0503      		.word	773
+ 263 00ec 0000      		.word	0
+ 264 00ee 0100      		.word	1
+ 265 00f0 0000      		.word	0
+ 266 00f2 0603      		.word	774
+ 267 00f4 0100      		.word	1
+ 268 00f6 0000      		.word	0
+ 269 00f8 0000      		.word	0
+ 270 00fa 0703      		.word	775
+ 271 00fc 0000      		.word	0
+ 272 00fe 0100      		.word	1
+ 274               		.text
+ 276               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 gpio_lcfg.c
+     /tmp/ccqPsARm.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccqPsARm.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccqPsARm.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccqPsARm.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccqPsARm.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccqPsARm.s:126    .text:00000000 gpio_getlcfgdata
+     /tmp/ccqPsARm.s:144    .data:00000000 gpio_initialConfiguration_s
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss

@@ -1,0 +1,62 @@
+   1               		.file	"main.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.global __do_copy_data
+   8               		.global __do_clear_bss
+  10               		.text
+  11               	.Ltext0:
+ 129               	.global	main
+ 131               	main:
+   1:src/main.c    **** #include "std_types.h"
+   2:src/main.c    **** 
+   3:src/main.c    **** #include "gpio/gpio.h"
+   4:src/main.c    **** #include "clock/clock.h"
+   5:src/main.c    **** 
+   6:src/main.c    **** 
+   7:src/main.c    **** int main(void)
+   8:src/main.c    **** {
+ 133               	.LM0:
+ 134               	.LFBB1:
+ 135               	/* prologue: function */
+ 136               	/* frame size = 0 */
+   9:src/main.c    ****    cli();
+ 138               	.LM1:
+ 139               	/* #APP */
+ 140               	 ;  9 "src/main.c" 1
+ 141 0000 F894      		cli
+ 142               	 ;  0 "" 2
+  10:src/main.c    ****    gpio_init();
+ 144               	.LM2:
+ 145               	/* #NOAPP */
+ 146 0002 0E94 0000 		call gpio_init
+  11:src/main.c    ****    clock_init();
+ 148               	.LM3:
+ 149 0006 0E94 0000 		call clock_init
+  12:src/main.c    ****    sei();
+ 151               	.LM4:
+ 152               	/* #APP */
+ 153               	 ;  12 "src/main.c" 1
+ 154 000a 7894      		sei
+ 155               	 ;  0 "" 2
+ 156               	/* #NOAPP */
+ 157               	.L2:
+ 158 000c 00C0      		rjmp .L2
+ 160               	.Lscope1:
+ 162               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+     /tmp/ccOAetEr.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccOAetEr.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccOAetEr.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccOAetEr.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccOAetEr.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccOAetEr.s:131    .text:00000000 main
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+gpio_init
+clock_init
