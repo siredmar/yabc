@@ -3,14 +3,13 @@
  *
  *          The clock module.
  *
- * author:      Armin
- * date:        28.07.2014
- * version:     0.4   worky, but not ready
+ * author:      Armin Schlegel, Mr. L.
+ * date:        28.10.2014
+ * version:     0.1   worky
  *
  * file history:
- *          28.07.2014  Armin   file created
- *          26.09.2014  Mr.L.   changed way of calculating date, edit timer reoutines, nicified,
- *                                  moved and renamed data structures, added CONSTs, ...
+ *          28.10.2014  Armin   forked from https://github.com/Mister-L/yalc.git
+ *                              edited to work with binary clock https://github.com/siredmar/yabc.git
  *
  * notes:
  *          - none -
@@ -20,8 +19,6 @@
 
 /* ------------------------------------ INCLUDES ------------------------------------------------ */
 #include "clock.h"
-
-
 
 /* ------------------------------------ DEFINES ------------------------------------------------- */
 #define CLOCK_HOUR_PORT GPIO_PORTA
@@ -43,18 +40,11 @@ enum
    DOT
 };
 
-
 /* ------------------------------------ GLOBAL VARIABLES ---------------------------------------- */
-
 
 /* ------------------------------------ PRIVATE VARIABLES --------------------------------------- */
 static clockType dateAndTime;
-
-//!!! <--- moved from .h
-
 static uint8 timerStoppedCounter;   // prevention of accidently restarting timer2
-
-
 
 /* ------------------------------------ PROTOTYPES ---------------------------------------------- */
 static void clock_delay(uint16 ms);
@@ -71,8 +61,6 @@ void clock_init(void)
    dateAndTime.second = 0;                    /* set initial time and date  */
    dateAndTime.minute = 0;
    dateAndTime.hour   = 0;
-
-
    /* --- timer init ---  */
 
    TIMSK2 = 0;                             // disable all timer2 interrupts
@@ -120,12 +108,10 @@ void clock_restart(void)
       TCCR2B |= (1 << CS22) | (1 << CS21);    // set prescaler = 256 and start timer
       while (ASSR & (1 << TCR2AUB));          // wait for register to update
    }
-
    if (timerStoppedCounter > 0)
    {
       timerStoppedCounter--;
    }
-
 }
 
 
@@ -134,9 +120,8 @@ void clock_restart(void)
 \* ---------------------------------------------------------------------------------------------- */
 void clock_displayTime(const clockType time)
 {
-   /* TODO yabc: replace second with hour */
-      gpio_WritePort(CLOCK_HOUR_PORT, dateAndTime.hour);
-      gpio_WritePort(CLOCK_MINUTE_PORT, dateAndTime.minute);
+      gpio_WritePort(CLOCK_HOUR_PORT, time.hour);
+      gpio_WritePort(CLOCK_MINUTE_PORT, time.minute);
 }
 
 /* ------------------------------------ PRIVATE FUNCTIONS --------------------------------------- */
@@ -157,15 +142,10 @@ static void clock_delay(uint16 ms)
 \* ---------------------------------------------------------------------------------------------- */
 static void updateDateAndTime(void)
 {
-   //   boolean timeChanged = FALSE;
-   //
-   //   timeChanged = TRUE;                         //!!! #rat
-
    if (dateAndTime.second > 59)
    {
       dateAndTime.second = 0;
       dateAndTime.minute++;
-      //      timeChanged = TRUE;
    }
    if (dateAndTime.minute > 59)
    {
@@ -176,10 +156,7 @@ static void updateDateAndTime(void)
    {
       dateAndTime.hour = 0;
    }
-   //   if (timeChanged == TRUE)
-   //   {
    clock_displayTime(dateAndTime);
-   //   }
 }
 
 /* ---------------------------------------------------------------------------------------------- *\
@@ -187,9 +164,7 @@ static void updateDateAndTime(void)
 \* ---------------------------------------------------------------------------------------------- */
 ISR(TIMER2_COMPA_vect)
 {
-   //   static cnt = 0;
    dateAndTime.second++;
-   //   gpio_WritePort(GPIO_PORTA, cnt++);
    updateDateAndTime();
 
    while(ASSR & ((1<<TCN2UB) | (1<<OCR2AUB) | (1<<OCR2BUB) |
@@ -197,6 +172,11 @@ ISR(TIMER2_COMPA_vect)
 
 }
 
+/* TODO: make cool and awesome state machine for:
+         * setting hour
+         * setting minute
+         * dimming the shit out of hell
+ */
 ISR(INT0_vect)
 {
    dateAndTime.minute++;

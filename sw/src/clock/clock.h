@@ -3,13 +3,13 @@
  *
  *          The clock module.
  *
- * author:      Armin
- * date:        28.07.2014
- * version:     0.4   worky, but not ready
+ * author:      Armin Schlegel, Mr. L.
+ * date:        28.10.2014
+ * version:     0.1   worky
  *
  * file history:
- *          28.07.2014  Armin   file created
- *          26.09.2014  Mr.L.   moved and renamed data structures, nicified
+ *          28.10.2014  Armin   forked from https://github.com/Mister-L/yalc.git
+ *                              edited to work with binary clock https://github.com/siredmar/yabc.git
  *
  * notes:
  *          - none -
@@ -48,17 +48,12 @@ typedef enum
     CT_NONE
 }clockType_e;
 
-
 /* ------------------------------------ GLOBAL VARIABLES ---------------------------------------- */
-
-
 /* ------------------------------------ PROTOTYPES ---------------------------------------------- */
 
 void clock_init(void);
 void clock_halt(void);
 void clock_restart(void);
 void clock_displayTime(const clockType time);
-
-
 /* ************************************ E O F *************************************************** */
 #endif /* _CLOCK_H_ */

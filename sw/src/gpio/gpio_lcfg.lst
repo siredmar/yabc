@@ -370,13 +370,13 @@
  276               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 gpio_lcfg.c
-     /tmp/ccqPsARm.s:2      *ABS*:0000003f __SREG__
-     /tmp/ccqPsARm.s:3      *ABS*:0000003e __SP_H__
-     /tmp/ccqPsARm.s:4      *ABS*:0000003d __SP_L__
-     /tmp/ccqPsARm.s:5      *ABS*:00000000 __tmp_reg__
-     /tmp/ccqPsARm.s:6      *ABS*:00000001 __zero_reg__
-     /tmp/ccqPsARm.s:126    .text:00000000 gpio_getlcfgdata
-     /tmp/ccqPsARm.s:144    .data:00000000 gpio_initialConfiguration_s
+     /tmp/ccEWz6Oh.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccEWz6Oh.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccEWz6Oh.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccEWz6Oh.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccEWz6Oh.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccEWz6Oh.s:126    .text:00000000 gpio_getlcfgdata
+     /tmp/ccEWz6Oh.s:144    .data:00000000 gpio_initialConfiguration_s
 
 UNDEFINED SYMBOLS
 __do_copy_data
