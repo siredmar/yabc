@@ -233,16 +233,22 @@ ISR(INT0_vect)
    {
    case setMinute:
 
+      gpio_WritePort(CLOCK_HOUR_PORT, dateAndTime.hour);
+      gpio_WritePort(CLOCK_MINUTE_PORT, 0x00);
       clock_menuState = setHour;
+
+
       break;
 
    case setHour:
-
+      gpio_WritePort(CLOCK_MINUTE_PORT, 0x00);
+      gpio_WritePort(CLOCK_HOUR_PORT, 0x00);
       clock_menuState = setPWM;
       break;
 
    case setPWM:
-
+      gpio_WritePort(CLOCK_MINUTE_PORT, dateAndTime.minute);
+      gpio_WritePort(CLOCK_HOUR_PORT, 0x00);
       clock_menuState = setMinute;
       break;
 

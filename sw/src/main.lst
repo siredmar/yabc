@@ -48,12 +48,12 @@
  162               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 main.c
-     /tmp/ccBR76or.s:2      *ABS*:0000003f __SREG__
-     /tmp/ccBR76or.s:3      *ABS*:0000003e __SP_H__
-     /tmp/ccBR76or.s:4      *ABS*:0000003d __SP_L__
-     /tmp/ccBR76or.s:5      *ABS*:00000000 __tmp_reg__
-     /tmp/ccBR76or.s:6      *ABS*:00000001 __zero_reg__
-     /tmp/ccBR76or.s:131    .text:00000000 main
+     /tmp/ccJJ396k.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccJJ396k.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccJJ396k.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccJJ396k.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccJJ396k.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccJJ396k.s:131    .text:00000000 main
 
 UNDEFINED SYMBOLS
 __do_copy_data

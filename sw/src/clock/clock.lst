@@ -569,8 +569,8 @@
  412 0132 1F90      		pop __zero_reg__
  413 0134 1895      		reti
  415               	.Lscope4:
- 417               	.global	__vector_1
- 419               	__vector_1:
+ 417               	.global	__vector_2
+ 419               	__vector_2:
  206:src/clock/clock.c **** 
  207:src/clock/clock.c **** ISR(TIMER1_COMPA_vect)
  208:src/clock/clock.c **** {
@@ -597,6 +597,39 @@
  229:src/clock/clock.c **** 
  230:src/clock/clock.c **** ISR(INT0_vect)
  231:src/clock/clock.c **** {
+ 232:src/clock/clock.c ****    switch(clock_menuState)
+ 233:src/clock/clock.c ****    {
+ 234:src/clock/clock.c ****    case setMinute:
+ 235:src/clock/clock.c **** 
+ 236:src/clock/clock.c ****       gpio_WritePort(CLOCK_HOUR_PORT, dateAndTime.hour);
+ 237:src/clock/clock.c ****       gpio_WritePort(CLOCK_MINUTE_PORT, 0x00);
+ 238:src/clock/clock.c ****       clock_menuState = setHour;
+ 239:src/clock/clock.c **** 
+ 240:src/clock/clock.c **** 
+ 241:src/clock/clock.c ****       break;
+ 242:src/clock/clock.c **** 
+ 243:src/clock/clock.c ****    case setHour:
+ 244:src/clock/clock.c ****       gpio_WritePort(CLOCK_MINUTE_PORT, 0x00);
+ 245:src/clock/clock.c ****       gpio_WritePort(CLOCK_HOUR_PORT, 0x00);
+ 246:src/clock/clock.c ****       clock_menuState = setPWM;
+ 247:src/clock/clock.c ****       break;
+ 248:src/clock/clock.c **** 
+ 249:src/clock/clock.c ****    case setPWM:
+ 250:src/clock/clock.c ****       gpio_WritePort(CLOCK_MINUTE_PORT, dateAndTime.minute);
+ 251:src/clock/clock.c ****       gpio_WritePort(CLOCK_HOUR_PORT, 0x00);
+ 252:src/clock/clock.c ****       clock_menuState = setMinute;
+ 253:src/clock/clock.c ****       break;
+ 254:src/clock/clock.c **** 
+ 255:src/clock/clock.c ****    default:
+ 256:src/clock/clock.c **** 
+ 257:src/clock/clock.c ****       break;
+ 258:src/clock/clock.c **** 
+ 259:src/clock/clock.c ****    }
+ 260:src/clock/clock.c ****    _delay_ms(333);
+ 261:src/clock/clock.c **** }
+ 262:src/clock/clock.c **** 
+ 263:src/clock/clock.c **** ISR(INT1_vect)
+ 264:src/clock/clock.c **** {
  421               	.LM46:
  422               	.LFBB5:
  423 0136 1F92      		push __zero_reg__
@@ -606,78 +639,249 @@
  427 013e 1124      		clr __zero_reg__
  428 0140 2F93      		push r18
  429 0142 3F93      		push r19
- 430 0144 8F93      		push r24
- 431 0146 9F93      		push r25
- 432 0148 EF93      		push r30
- 433 014a FF93      		push r31
- 434               	/* prologue: Signal */
- 435               	/* frame size = 0 */
- 232:src/clock/clock.c ****    switch(clock_menuState)
- 437               	.LM47:
- 438 014c 8091 0000 		lds r24,clock_menuState
- 439 0150 9091 0000 		lds r25,(clock_menuState)+1
- 440 0154 8130      		cpi r24,1
- 441 0156 9105      		cpc r25,__zero_reg__
- 442 0158 01F0      		breq .L29
- 443 015a 8130      		cpi r24,1
- 444 015c 9105      		cpc r25,__zero_reg__
- 445 015e 00F0      		brlo .L28
- 446 0160 0297      		sbiw r24,2
- 447 0162 01F4      		brne .L35
- 448 0164 00C0      		rjmp .L30
- 449               	.L28:
- 233:src/clock/clock.c ****    {
- 234:src/clock/clock.c ****    case setMinute:
- 235:src/clock/clock.c **** 
- 236:src/clock/clock.c ****       clock_menuState = setHour;
- 451               	.LM48:
- 452 0166 81E0      		ldi r24,lo8(1)
- 453 0168 90E0      		ldi r25,hi8(1)
- 454 016a 00C0      		rjmp .L36
- 455               	.L29:
- 237:src/clock/clock.c ****       break;
- 238:src/clock/clock.c **** 
- 239:src/clock/clock.c ****    case setHour:
- 240:src/clock/clock.c **** 
- 241:src/clock/clock.c ****       clock_menuState = setPWM;
- 457               	.LM49:
- 458 016c 82E0      		ldi r24,lo8(2)
- 459 016e 90E0      		ldi r25,hi8(2)
- 460               	.L36:
- 461 0170 9093 0000 		sts (clock_menuState)+1,r25
- 462 0174 8093 0000 		sts clock_menuState,r24
- 463 0178 00C0      		rjmp .L35
- 464               	.L30:
- 242:src/clock/clock.c ****       break;
- 243:src/clock/clock.c **** 
- 244:src/clock/clock.c ****    case setPWM:
- 245:src/clock/clock.c **** 
- 246:src/clock/clock.c ****       clock_menuState = setMinute;
- 466               	.LM50:
- 467 017a 1092 0000 		sts (clock_menuState)+1,__zero_reg__
- 468 017e 1092 0000 		sts clock_menuState,__zero_reg__
- 469               	.L35:
- 470 0182 82E0      		ldi r24,lo8(3330)
- 471 0184 9DE0      		ldi r25,hi8(3330)
- 472               	.LBB53:
- 473               	.LBB54:
- 474               	.LBB55:
- 475               	.LBB56:
- 477               	.Ltext3:
- 479               	.LM51:
- 480 0186 28EC      		ldi r18,lo8(200)
- 481 0188 30E0      		ldi r19,hi8(200)
- 482               	.L33:
- 483 018a F901      		movw r30,r18
- 484               	/* #APP */
- 485               	 ;  105 "/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h" 1
- 486 018c 3197      		1: sbiw r30,1
- 487 018e 01F4      		brne 1b
- 488               	 ;  0 "" 2
- 489               	/* #NOAPP */
- 490               	.LBE56:
- 491               	.LBE55:
- 493               	.Ltext4:
+ 430 0144 4F93      		push r20
+ 431 0146 5F93      		push r21
+ 432 0148 6F93      		push r22
+ 433 014a 7F93      		push r23
+ 434 014c 8F93      		push r24
+ 435 014e 9F93      		push r25
+ 436 0150 AF93      		push r26
+ 437 0152 BF93      		push r27
+ 438 0154 EF93      		push r30
+ 439 0156 FF93      		push r31
+ 440               	/* prologue: Signal */
+ 441               	/* frame size = 0 */
+ 442               	.LBB53:
+ 443               	.LBB54:
+ 105:src/clock/clock.c ****    if (timerStoppedCounter == 0)
+ 445               	.LM47:
+ 446 0158 9091 0000 		lds r25,timerStoppedCounter
+ 447 015c 9923      		tst r25
+ 448 015e 01F4      		brne .L27
+ 107:src/clock/clock.c ****       TCCR2B = 0;                     // stop timer
+ 450               	.LM48:
+ 451 0160 1092 B100 		sts 177,__zero_reg__
+ 452               	.L28:
+ 108:src/clock/clock.c ****       while (ASSR & (1 << TCR2AUB));  // wait for register to update
+ 454               	.LM49:
+ 455 0164 8091 B600 		lds r24,182
+ 456 0168 81FD      		sbrc r24,1
+ 457 016a 00C0      		rjmp .L28
+ 458               	.L27:
+ 111:src/clock/clock.c ****    timerStoppedCounter++;
+ 460               	.LM50:
+ 461 016c 9F5F      		subi r25,lo8(-(1))
+ 462 016e 9093 0000 		sts timerStoppedCounter,r25
+ 463               	.LBE54:
+ 464               	.LBE53:
+ 265:src/clock/clock.c ****    clock_halt();
+ 266:src/clock/clock.c **** 
+ 267:src/clock/clock.c ****    switch(clock_menuState)
+ 466               	.LM51:
+ 467 0172 8091 0000 		lds r24,clock_menuState
+ 468 0176 9091 0000 		lds r25,(clock_menuState)+1
+ 469 017a 8130      		cpi r24,1
+ 470 017c 9105      		cpc r25,__zero_reg__
+ 471 017e 01F0      		breq .L31
+ 472 0180 8130      		cpi r24,1
+ 473 0182 9105      		cpc r25,__zero_reg__
+ 474 0184 00F0      		brlo .L30
+ 475 0186 0297      		sbiw r24,2
+ 476 0188 01F0      		breq .+2
+ 477 018a 00C0      		rjmp .L29
+ 478 018c 00C0      		rjmp .L49
+ 479               	.L30:
+ 268:src/clock/clock.c ****    {
+ 269:src/clock/clock.c ****    case setMinute:
+ 270:src/clock/clock.c ****       gpio_WritePort(CLOCK_MINUTE_PORT, dateAndTime.minute);
+ 481               	.LM52:
+ 482 018e 81E0      		ldi r24,lo8(1)
+ 483 0190 90E0      		ldi r25,hi8(1)
+ 484 0192 6091 0000 		lds r22,dateAndTime+1
+ 485 0196 0E94 0000 		call gpio_WritePort
+ 271:src/clock/clock.c ****       gpio_WritePort(CLOCK_HOUR_PORT, dateAndTime.hour);
+ 487               	.LM53:
+ 488 019a 80E0      		ldi r24,lo8(0)
+ 489 019c 90E0      		ldi r25,hi8(0)
+ 490 019e 6091 0000 		lds r22,dateAndTime+2
+ 491 01a2 0E94 0000 		call gpio_WritePort
+ 272:src/clock/clock.c ****       dateAndTime.minute++;
+ 493               	.LM54:
+ 494 01a6 9091 0000 		lds r25,dateAndTime+1
+ 495 01aa 9F5F      		subi r25,lo8(-(1))
+ 496 01ac 9093 0000 		sts dateAndTime+1,r25
+ 497               	.LBB55:
+ 498               	.LBB56:
+ 149:src/clock/clock.c ****    if (dateAndTime.second > 59)
+ 500               	.LM55:
+ 501 01b0 8091 0000 		lds r24,dateAndTime
+ 502 01b4 8C33      		cpi r24,lo8(60)
+ 503 01b6 00F0      		brlo .L33
+ 151:src/clock/clock.c ****       dateAndTime.second = 0;
+ 505               	.LM56:
+ 506 01b8 1092 0000 		sts dateAndTime,__zero_reg__
+ 152:src/clock/clock.c ****       dateAndTime.minute++;
+ 508               	.LM57:
+ 509 01bc 9F5F      		subi r25,lo8(-(1))
+ 510 01be 9093 0000 		sts dateAndTime+1,r25
+ 511               	.L33:
+ 155:src/clock/clock.c ****    if (dateAndTime.minute > 59)
+ 513               	.LM58:
+ 514 01c2 8091 0000 		lds r24,dateAndTime+1
+ 515 01c6 8C33      		cpi r24,lo8(60)
+ 516 01c8 00F0      		brlo .L36
+ 157:src/clock/clock.c ****       dateAndTime.minute = 0;
+ 518               	.LM59:
+ 519 01ca 1092 0000 		sts dateAndTime+1,__zero_reg__
+ 158:src/clock/clock.c ****       dateAndTime.hour++;
+ 521               	.LM60:
+ 522 01ce 8091 0000 		lds r24,dateAndTime+2
+ 523 01d2 8F5F      		subi r24,lo8(-(1))
+ 524 01d4 8093 0000 		sts dateAndTime+2,r24
+ 525 01d8 00C0      		rjmp .L36
+ 526               	.L31:
+ 527               	.LBE56:
+ 528               	.LBE55:
+ 273:src/clock/clock.c ****       updateDateAndTime();
+ 274:src/clock/clock.c ****       break;
+ 275:src/clock/clock.c **** 
+ 276:src/clock/clock.c ****    case setHour:
+ 277:src/clock/clock.c ****       gpio_WritePort(CLOCK_MINUTE_PORT, dateAndTime.minute);
+ 530               	.LM61:
+ 531 01da 81E0      		ldi r24,lo8(1)
+ 532 01dc 90E0      		ldi r25,hi8(1)
+ 533 01de 6091 0000 		lds r22,dateAndTime+1
+ 534 01e2 0E94 0000 		call gpio_WritePort
+ 278:src/clock/clock.c ****       gpio_WritePort(CLOCK_HOUR_PORT, dateAndTime.hour);
+ 536               	.LM62:
+ 537 01e6 80E0      		ldi r24,lo8(0)
+ 538 01e8 90E0      		ldi r25,hi8(0)
+ 539 01ea 6091 0000 		lds r22,dateAndTime+2
+ 540 01ee 0E94 0000 		call gpio_WritePort
+ 279:src/clock/clock.c ****       dateAndTime.hour++;
+ 542               	.LM63:
+ 543 01f2 9091 0000 		lds r25,dateAndTime+2
+ 544 01f6 9F5F      		subi r25,lo8(-(1))
+ 545 01f8 9093 0000 		sts dateAndTime+2,r25
+ 546               	.LBB57:
+ 547               	.LBB58:
+ 149:src/clock/clock.c ****    if (dateAndTime.second > 59)
+ 549               	.LM64:
+ 550 01fc 8091 0000 		lds r24,dateAndTime
+ 551 0200 8C33      		cpi r24,lo8(60)
+ 552 0202 00F0      		brlo .L35
+ 151:src/clock/clock.c ****       dateAndTime.second = 0;
+ 554               	.LM65:
+ 555 0204 1092 0000 		sts dateAndTime,__zero_reg__
+ 152:src/clock/clock.c ****       dateAndTime.minute++;
+ 557               	.LM66:
+ 558 0208 8091 0000 		lds r24,dateAndTime+1
+ 559 020c 8F5F      		subi r24,lo8(-(1))
+ 560 020e 8093 0000 		sts dateAndTime+1,r24
+ 561               	.L35:
+ 155:src/clock/clock.c ****    if (dateAndTime.minute > 59)
+ 563               	.LM67:
+ 564 0212 8091 0000 		lds r24,dateAndTime+1
+ 565 0216 8C33      		cpi r24,lo8(60)
+ 566 0218 00F0      		brlo .L36
+ 157:src/clock/clock.c ****       dateAndTime.minute = 0;
+ 568               	.LM68:
+ 569 021a 1092 0000 		sts dateAndTime+1,__zero_reg__
+ 158:src/clock/clock.c ****       dateAndTime.hour++;
+ 571               	.LM69:
+ 572 021e 9F5F      		subi r25,lo8(-(1))
+ 573 0220 9093 0000 		sts dateAndTime+2,r25
+ 574               	.L36:
+ 160:src/clock/clock.c ****    if (dateAndTime.hour > 23)
+ 576               	.LM70:
+ 577 0224 8091 0000 		lds r24,dateAndTime+2
+ 578 0228 8831      		cpi r24,lo8(24)
+ 579 022a 00F0      		brlo .L29
+ 162:src/clock/clock.c ****       dateAndTime.hour = 0;
+ 581               	.LM71:
+ 582 022c 1092 0000 		sts dateAndTime+2,__zero_reg__
+ 583 0230 00C0      		rjmp .L29
+ 584               	.L49:
+ 585               	.LBE58:
+ 586               	.LBE57:
+ 280:src/clock/clock.c ****       updateDateAndTime();
+ 281:src/clock/clock.c ****       break;
+ 282:src/clock/clock.c **** 
+ 283:src/clock/clock.c ****    case setPWM:
+ 284:src/clock/clock.c **** 
+ 285:src/clock/clock.c ****       pwmDuty = pwmDuty + CLOCK_PWM_DUTY_INC;
+ 588               	.LM72:
+ 589 0232 8091 0000 		lds r24,pwmDuty
+ 590 0236 9091 0000 		lds r25,(pwmDuty)+1
+ 591 023a 4496      		adiw r24,20
+ 592 023c 9093 0000 		sts (pwmDuty)+1,r25
+ 593 0240 8093 0000 		sts pwmDuty,r24
+ 286:src/clock/clock.c **** 
+ 287:src/clock/clock.c ****       if(pwmDuty > CLOCK_PWM_PERIOD)
+ 595               	.LM73:
+ 596 0244 8536      		cpi r24,101
+ 597 0246 9105      		cpc r25,__zero_reg__
+ 598 0248 00F0      		brlo .L29
+ 288:src/clock/clock.c ****          pwmDuty = CLOCK_PWM_DUTY;
+ 600               	.LM74:
+ 601 024a 84E1      		ldi r24,lo8(20)
+ 602 024c 90E0      		ldi r25,hi8(20)
+ 603 024e 9093 0000 		sts (pwmDuty)+1,r25
+ 604 0252 8093 0000 		sts pwmDuty,r24
+ 605               	.L29:
+ 606               	.LBB59:
+ 607               	.LBB60:
+ 119:src/clock/clock.c ****    if (timerStoppedCounter == 1)
+ 609               	.LM75:
+ 610 0256 9091 0000 		lds r25,timerStoppedCounter
+ 611 025a 9130      		cpi r25,lo8(1)
+ 612 025c 01F4      		brne .L37
+ 121:src/clock/clock.c ****       TCCR2B |= (1 << CS22) | (1 << CS21);    // set prescaler = 256 and start timer
+ 614               	.LM76:
+ 615 025e 8091 B100 		lds r24,177
+ 616 0262 8660      		ori r24,lo8(6)
+ 617 0264 8093 B100 		sts 177,r24
+ 618               	.L38:
+ 122:src/clock/clock.c ****       while (ASSR & (1 << TCR2AUB));          // wait for register to update
+ 620               	.LM77:
+ 621 0268 8091 B600 		lds r24,182
+ 622 026c 81FD      		sbrc r24,1
+ 623 026e 00C0      		rjmp .L38
+ 624 0270 00C0      		rjmp .L39
+ 625               	.L37:
+ 124:src/clock/clock.c ****    if (timerStoppedCounter > 0)
+ 627               	.LM78:
+ 628 0272 9923      		tst r25
+ 629 0274 01F0      		breq .L47
+ 630               	.L39:
+ 126:src/clock/clock.c ****       timerStoppedCounter--;
+ 632               	.LM79:
+ 633 0276 9150      		subi r25,lo8(-(-1))
+ 634 0278 9093 0000 		sts timerStoppedCounter,r25
+ 635               	.L47:
+ 636 027c 82E0      		ldi r24,lo8(3330)
+ 637 027e 9DE0      		ldi r25,hi8(3330)
+ 638               	.LBE60:
+ 639               	.LBE59:
+ 640               	.LBB61:
+ 641               	.LBB62:
+ 642               	.LBB63:
+ 643               	.LBB64:
+ 645               	.Ltext3:
+ 647               	.LM80:
+ 648 0280 28EC      		ldi r18,lo8(200)
+ 649 0282 30E0      		ldi r19,hi8(200)
+ 650               	.L42:
+ 651 0284 F901      		movw r30,r18
+ 652               	/* #APP */
+ 653               	 ;  105 "/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h" 1
+ 654 0286 3197      		1: sbiw r30,1
+ 655 0288 01F4      		brne 1b
+ 656               	 ;  0 "" 2
+ 657               	/* #NOAPP */
+ 658               	.LBE64:
+ 659               	.LBE63:
+ 661               	.Ltext4:
    1:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
    2:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    Copyright (c) 2004,2005,2007 Joerg Wunsch
    3:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h ****    Copyright (c) 2007  Florin-Viorel Petrov
@@ -844,460 +1048,316 @@
  164:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 			// wait 1/10 ms
  165:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 			_delay_loop_2(((F_CPU) / 4e3) / 10);
  166:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 			__ticks --;
- 495               	.LM52:
- 496 0190 0197      		sbiw r24,1
+ 663               	.LM81:
+ 664 028a 0197      		sbiw r24,1
  162:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 		while(__ticks)
- 498               	.LM53:
- 499 0192 01F4      		brne .L33
- 500               	/* epilogue start */
- 501               	.LBE54:
- 502               	.LBE53:
- 504               	.Ltext5:
- 247:src/clock/clock.c ****       break;
- 248:src/clock/clock.c **** 
- 249:src/clock/clock.c ****    default:
- 250:src/clock/clock.c **** 
- 251:src/clock/clock.c ****       break;
- 252:src/clock/clock.c **** 
- 253:src/clock/clock.c ****    }
- 254:src/clock/clock.c ****    _delay_ms(333);
- 255:src/clock/clock.c **** }
- 506               	.LM54:
- 507 0194 FF91      		pop r31
- 508 0196 EF91      		pop r30
- 509 0198 9F91      		pop r25
- 510 019a 8F91      		pop r24
- 511 019c 3F91      		pop r19
- 512 019e 2F91      		pop r18
- 513 01a0 0F90      		pop r0
- 514 01a2 0FBE      		out __SREG__,r0
- 515 01a4 0F90      		pop r0
- 516 01a6 1F90      		pop __zero_reg__
- 517 01a8 1895      		reti
- 525               	.Lscope5:
- 527               	.global	__vector_2
- 529               	__vector_2:
- 256:src/clock/clock.c **** 
- 257:src/clock/clock.c **** ISR(INT1_vect)
- 258:src/clock/clock.c **** {
- 531               	.LM55:
- 532               	.LFBB6:
- 533 01aa 1F92      		push __zero_reg__
- 534 01ac 0F92      		push r0
- 535 01ae 0FB6      		in r0,__SREG__
- 536 01b0 0F92      		push r0
- 537 01b2 1124      		clr __zero_reg__
- 538 01b4 2F93      		push r18
- 539 01b6 3F93      		push r19
- 540 01b8 4F93      		push r20
- 541 01ba 5F93      		push r21
- 542 01bc 6F93      		push r22
- 543 01be 7F93      		push r23
- 544 01c0 8F93      		push r24
- 545 01c2 9F93      		push r25
- 546 01c4 AF93      		push r26
- 547 01c6 BF93      		push r27
- 548 01c8 EF93      		push r30
- 549 01ca FF93      		push r31
- 550               	/* prologue: Signal */
- 551               	/* frame size = 0 */
- 552               	.LBB57:
- 553               	.LBB58:
- 105:src/clock/clock.c ****    if (timerStoppedCounter == 0)
- 555               	.LM56:
- 556 01cc 9091 0000 		lds r25,timerStoppedCounter
- 557 01d0 9923      		tst r25
- 558 01d2 01F4      		brne .L38
- 107:src/clock/clock.c ****       TCCR2B = 0;                     // stop timer
- 560               	.LM57:
- 561 01d4 1092 B100 		sts 177,__zero_reg__
- 562               	.L39:
- 108:src/clock/clock.c ****       while (ASSR & (1 << TCR2AUB));  // wait for register to update
- 564               	.LM58:
- 565 01d8 8091 B600 		lds r24,182
- 566 01dc 81FD      		sbrc r24,1
- 567 01de 00C0      		rjmp .L39
- 568               	.L38:
- 111:src/clock/clock.c ****    timerStoppedCounter++;
- 570               	.LM59:
- 571 01e0 9F5F      		subi r25,lo8(-(1))
- 572 01e2 9093 0000 		sts timerStoppedCounter,r25
- 573               	.LBE58:
- 574               	.LBE57:
- 259:src/clock/clock.c ****    clock_halt();
- 260:src/clock/clock.c **** 
- 261:src/clock/clock.c ****    switch(clock_menuState)
- 576               	.LM60:
- 577 01e6 8091 0000 		lds r24,clock_menuState
- 578 01ea 9091 0000 		lds r25,(clock_menuState)+1
- 579 01ee 8130      		cpi r24,1
- 580 01f0 9105      		cpc r25,__zero_reg__
- 581 01f2 01F0      		breq .L42
- 582 01f4 8130      		cpi r24,1
- 583 01f6 9105      		cpc r25,__zero_reg__
- 584 01f8 00F0      		brlo .L41
- 585 01fa 0297      		sbiw r24,2
- 586 01fc 01F0      		breq .+2
- 587 01fe 00C0      		rjmp .L40
- 588 0200 00C0      		rjmp .L60
- 589               	.L41:
- 262:src/clock/clock.c ****    {
- 263:src/clock/clock.c ****    case setMinute:
- 264:src/clock/clock.c ****       gpio_WritePort(CLOCK_MINUTE_PORT, dateAndTime.minute);
- 591               	.LM61:
- 592 0202 81E0      		ldi r24,lo8(1)
- 593 0204 90E0      		ldi r25,hi8(1)
- 594 0206 6091 0000 		lds r22,dateAndTime+1
- 595 020a 0E94 0000 		call gpio_WritePort
- 265:src/clock/clock.c ****       gpio_WritePort(CLOCK_HOUR_PORT, dateAndTime.hour);
- 597               	.LM62:
- 598 020e 80E0      		ldi r24,lo8(0)
- 599 0210 90E0      		ldi r25,hi8(0)
- 600 0212 6091 0000 		lds r22,dateAndTime+2
- 601 0216 0E94 0000 		call gpio_WritePort
- 266:src/clock/clock.c ****       dateAndTime.minute++;
- 603               	.LM63:
- 604 021a 9091 0000 		lds r25,dateAndTime+1
- 605 021e 9F5F      		subi r25,lo8(-(1))
- 606 0220 9093 0000 		sts dateAndTime+1,r25
- 607               	.LBB59:
- 608               	.LBB60:
- 149:src/clock/clock.c ****    if (dateAndTime.second > 59)
- 610               	.LM64:
- 611 0224 8091 0000 		lds r24,dateAndTime
- 612 0228 8C33      		cpi r24,lo8(60)
- 613 022a 00F0      		brlo .L44
- 151:src/clock/clock.c ****       dateAndTime.second = 0;
- 615               	.LM65:
- 616 022c 1092 0000 		sts dateAndTime,__zero_reg__
- 152:src/clock/clock.c ****       dateAndTime.minute++;
- 618               	.LM66:
- 619 0230 9F5F      		subi r25,lo8(-(1))
- 620 0232 9093 0000 		sts dateAndTime+1,r25
- 621               	.L44:
- 155:src/clock/clock.c ****    if (dateAndTime.minute > 59)
- 623               	.LM67:
- 624 0236 8091 0000 		lds r24,dateAndTime+1
- 625 023a 8C33      		cpi r24,lo8(60)
- 626 023c 00F0      		brlo .L47
- 157:src/clock/clock.c ****       dateAndTime.minute = 0;
- 628               	.LM68:
- 629 023e 1092 0000 		sts dateAndTime+1,__zero_reg__
- 158:src/clock/clock.c ****       dateAndTime.hour++;
- 631               	.LM69:
- 632 0242 8091 0000 		lds r24,dateAndTime+2
- 633 0246 8F5F      		subi r24,lo8(-(1))
- 634 0248 8093 0000 		sts dateAndTime+2,r24
- 635 024c 00C0      		rjmp .L47
- 636               	.L42:
- 637               	.LBE60:
- 638               	.LBE59:
- 267:src/clock/clock.c ****       updateDateAndTime();
- 268:src/clock/clock.c ****       break;
- 269:src/clock/clock.c **** 
- 270:src/clock/clock.c ****    case setHour:
- 271:src/clock/clock.c ****       gpio_WritePort(CLOCK_MINUTE_PORT, dateAndTime.minute);
- 640               	.LM70:
- 641 024e 81E0      		ldi r24,lo8(1)
- 642 0250 90E0      		ldi r25,hi8(1)
- 643 0252 6091 0000 		lds r22,dateAndTime+1
- 644 0256 0E94 0000 		call gpio_WritePort
- 272:src/clock/clock.c ****       gpio_WritePort(CLOCK_HOUR_PORT, dateAndTime.hour);
- 646               	.LM71:
- 647 025a 80E0      		ldi r24,lo8(0)
- 648 025c 90E0      		ldi r25,hi8(0)
- 649 025e 6091 0000 		lds r22,dateAndTime+2
- 650 0262 0E94 0000 		call gpio_WritePort
- 273:src/clock/clock.c ****       dateAndTime.hour++;
- 652               	.LM72:
- 653 0266 9091 0000 		lds r25,dateAndTime+2
- 654 026a 9F5F      		subi r25,lo8(-(1))
- 655 026c 9093 0000 		sts dateAndTime+2,r25
- 656               	.LBB61:
- 657               	.LBB62:
- 149:src/clock/clock.c ****    if (dateAndTime.second > 59)
- 659               	.LM73:
- 660 0270 8091 0000 		lds r24,dateAndTime
- 661 0274 8C33      		cpi r24,lo8(60)
- 662 0276 00F0      		brlo .L46
- 151:src/clock/clock.c ****       dateAndTime.second = 0;
- 664               	.LM74:
- 665 0278 1092 0000 		sts dateAndTime,__zero_reg__
- 152:src/clock/clock.c ****       dateAndTime.minute++;
- 667               	.LM75:
- 668 027c 8091 0000 		lds r24,dateAndTime+1
- 669 0280 8F5F      		subi r24,lo8(-(1))
- 670 0282 8093 0000 		sts dateAndTime+1,r24
- 671               	.L46:
- 155:src/clock/clock.c ****    if (dateAndTime.minute > 59)
- 673               	.LM76:
- 674 0286 8091 0000 		lds r24,dateAndTime+1
- 675 028a 8C33      		cpi r24,lo8(60)
- 676 028c 00F0      		brlo .L47
- 157:src/clock/clock.c ****       dateAndTime.minute = 0;
- 678               	.LM77:
- 679 028e 1092 0000 		sts dateAndTime+1,__zero_reg__
- 158:src/clock/clock.c ****       dateAndTime.hour++;
- 681               	.LM78:
- 682 0292 9F5F      		subi r25,lo8(-(1))
- 683 0294 9093 0000 		sts dateAndTime+2,r25
- 684               	.L47:
- 160:src/clock/clock.c ****    if (dateAndTime.hour > 23)
- 686               	.LM79:
- 687 0298 8091 0000 		lds r24,dateAndTime+2
- 688 029c 8831      		cpi r24,lo8(24)
- 689 029e 00F0      		brlo .L40
- 162:src/clock/clock.c ****       dateAndTime.hour = 0;
- 691               	.LM80:
- 692 02a0 1092 0000 		sts dateAndTime+2,__zero_reg__
- 693 02a4 00C0      		rjmp .L40
- 694               	.L60:
- 695               	.LBE62:
- 696               	.LBE61:
- 274:src/clock/clock.c ****       updateDateAndTime();
- 275:src/clock/clock.c ****       break;
- 276:src/clock/clock.c **** 
- 277:src/clock/clock.c ****    case setPWM:
- 278:src/clock/clock.c **** 
- 279:src/clock/clock.c ****       pwmDuty = pwmDuty + CLOCK_PWM_DUTY_INC;
- 698               	.LM81:
- 699 02a6 8091 0000 		lds r24,pwmDuty
- 700 02aa 9091 0000 		lds r25,(pwmDuty)+1
- 701 02ae 4496      		adiw r24,20
- 702 02b0 9093 0000 		sts (pwmDuty)+1,r25
- 703 02b4 8093 0000 		sts pwmDuty,r24
- 280:src/clock/clock.c **** 
- 281:src/clock/clock.c ****       if(pwmDuty > CLOCK_PWM_PERIOD)
- 705               	.LM82:
- 706 02b8 8536      		cpi r24,101
- 707 02ba 9105      		cpc r25,__zero_reg__
- 708 02bc 00F0      		brlo .L40
- 282:src/clock/clock.c ****          pwmDuty = CLOCK_PWM_DUTY;
- 710               	.LM83:
- 711 02be 84E1      		ldi r24,lo8(20)
- 712 02c0 90E0      		ldi r25,hi8(20)
- 713 02c2 9093 0000 		sts (pwmDuty)+1,r25
- 714 02c6 8093 0000 		sts pwmDuty,r24
- 715               	.L40:
- 716               	.LBB63:
- 717               	.LBB64:
- 119:src/clock/clock.c ****    if (timerStoppedCounter == 1)
- 719               	.LM84:
- 720 02ca 9091 0000 		lds r25,timerStoppedCounter
- 721 02ce 9130      		cpi r25,lo8(1)
- 722 02d0 01F4      		brne .L48
- 121:src/clock/clock.c ****       TCCR2B |= (1 << CS22) | (1 << CS21);    // set prescaler = 256 and start timer
- 724               	.LM85:
- 725 02d2 8091 B100 		lds r24,177
- 726 02d6 8660      		ori r24,lo8(6)
- 727 02d8 8093 B100 		sts 177,r24
- 728               	.L49:
- 122:src/clock/clock.c ****       while (ASSR & (1 << TCR2AUB));          // wait for register to update
- 730               	.LM86:
- 731 02dc 8091 B600 		lds r24,182
- 732 02e0 81FD      		sbrc r24,1
- 733 02e2 00C0      		rjmp .L49
- 734 02e4 00C0      		rjmp .L50
- 735               	.L48:
- 124:src/clock/clock.c ****    if (timerStoppedCounter > 0)
- 737               	.LM87:
- 738 02e6 9923      		tst r25
- 739 02e8 01F0      		breq .L58
- 740               	.L50:
- 126:src/clock/clock.c ****       timerStoppedCounter--;
- 742               	.LM88:
- 743 02ea 9150      		subi r25,lo8(-(-1))
- 744 02ec 9093 0000 		sts timerStoppedCounter,r25
- 745               	.L58:
- 746 02f0 82E0      		ldi r24,lo8(3330)
- 747 02f2 9DE0      		ldi r25,hi8(3330)
- 748               	.LBE64:
- 749               	.LBE63:
- 750               	.LBB65:
- 751               	.LBB66:
- 752               	.LBB67:
- 753               	.LBB68:
- 755               	.Ltext6:
- 757               	.LM89:
- 758 02f4 28EC      		ldi r18,lo8(200)
- 759 02f6 30E0      		ldi r19,hi8(200)
- 760               	.L53:
- 761 02f8 F901      		movw r30,r18
- 762               	/* #APP */
- 763               	 ;  105 "/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h" 1
- 764 02fa 3197      		1: sbiw r30,1
- 765 02fc 01F4      		brne 1b
- 766               	 ;  0 "" 2
- 767               	/* #NOAPP */
- 768               	.LBE68:
- 769               	.LBE67:
- 771               	.Ltext7:
- 773               	.LM90:
- 774 02fe 0197      		sbiw r24,1
- 162:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 		while(__ticks)
- 776               	.LM91:
- 777 0300 01F4      		brne .L53
- 778               	/* epilogue start */
- 779               	.LBE66:
- 780               	.LBE65:
- 782               	.Ltext8:
- 283:src/clock/clock.c **** 
- 284:src/clock/clock.c **** 
- 285:src/clock/clock.c ****       break;
- 286:src/clock/clock.c **** 
- 287:src/clock/clock.c ****    default:
- 288:src/clock/clock.c **** 
- 289:src/clock/clock.c ****       break;
+ 666               	.LM82:
+ 667 028c 01F4      		brne .L42
+ 668               	/* epilogue start */
+ 669               	.LBE62:
+ 670               	.LBE61:
+ 672               	.Ltext5:
+ 289:src/clock/clock.c **** 
  290:src/clock/clock.c **** 
- 291:src/clock/clock.c ****    }
- 292:src/clock/clock.c ****    clock_restart();
- 293:src/clock/clock.c ****    _delay_ms(333);
- 294:src/clock/clock.c **** }
- 784               	.LM92:
- 785 0302 FF91      		pop r31
- 786 0304 EF91      		pop r30
- 787 0306 BF91      		pop r27
- 788 0308 AF91      		pop r26
- 789 030a 9F91      		pop r25
- 790 030c 8F91      		pop r24
- 791 030e 7F91      		pop r23
- 792 0310 6F91      		pop r22
- 793 0312 5F91      		pop r21
- 794 0314 4F91      		pop r20
- 795 0316 3F91      		pop r19
- 796 0318 2F91      		pop r18
- 797 031a 0F90      		pop r0
- 798 031c 0FBE      		out __SREG__,r0
- 799 031e 0F90      		pop r0
- 800 0320 1F90      		pop __zero_reg__
- 801 0322 1895      		reti
- 809               	.Lscope6:
- 811               	.global	__vector_13
- 813               	__vector_13:
+ 291:src/clock/clock.c ****       break;
+ 292:src/clock/clock.c **** 
+ 293:src/clock/clock.c ****    default:
+ 294:src/clock/clock.c **** 
+ 295:src/clock/clock.c ****       break;
+ 296:src/clock/clock.c **** 
+ 297:src/clock/clock.c ****    }
+ 298:src/clock/clock.c ****    clock_restart();
+ 299:src/clock/clock.c ****    _delay_ms(333);
+ 300:src/clock/clock.c **** }
+ 674               	.LM83:
+ 675 028e FF91      		pop r31
+ 676 0290 EF91      		pop r30
+ 677 0292 BF91      		pop r27
+ 678 0294 AF91      		pop r26
+ 679 0296 9F91      		pop r25
+ 680 0298 8F91      		pop r24
+ 681 029a 7F91      		pop r23
+ 682 029c 6F91      		pop r22
+ 683 029e 5F91      		pop r21
+ 684 02a0 4F91      		pop r20
+ 685 02a2 3F91      		pop r19
+ 686 02a4 2F91      		pop r18
+ 687 02a6 0F90      		pop r0
+ 688 02a8 0FBE      		out __SREG__,r0
+ 689 02aa 0F90      		pop r0
+ 690 02ac 1F90      		pop __zero_reg__
+ 691 02ae 1895      		reti
+ 699               	.Lscope5:
+ 701               	.global	__vector_1
+ 703               	__vector_1:
+ 231:src/clock/clock.c **** {
+ 705               	.LM84:
+ 706               	.LFBB6:
+ 707 02b0 1F92      		push __zero_reg__
+ 708 02b2 0F92      		push r0
+ 709 02b4 0FB6      		in r0,__SREG__
+ 710 02b6 0F92      		push r0
+ 711 02b8 1124      		clr __zero_reg__
+ 712 02ba 2F93      		push r18
+ 713 02bc 3F93      		push r19
+ 714 02be 4F93      		push r20
+ 715 02c0 5F93      		push r21
+ 716 02c2 6F93      		push r22
+ 717 02c4 7F93      		push r23
+ 718 02c6 8F93      		push r24
+ 719 02c8 9F93      		push r25
+ 720 02ca AF93      		push r26
+ 721 02cc BF93      		push r27
+ 722 02ce EF93      		push r30
+ 723 02d0 FF93      		push r31
+ 724               	/* prologue: Signal */
+ 725               	/* frame size = 0 */
+ 232:src/clock/clock.c ****    switch(clock_menuState)
+ 727               	.LM85:
+ 728 02d2 8091 0000 		lds r24,clock_menuState
+ 729 02d6 9091 0000 		lds r25,(clock_menuState)+1
+ 730 02da 8130      		cpi r24,1
+ 731 02dc 9105      		cpc r25,__zero_reg__
+ 732 02de 01F0      		breq .L53
+ 733 02e0 8130      		cpi r24,1
+ 734 02e2 9105      		cpc r25,__zero_reg__
+ 735 02e4 00F0      		brlo .L52
+ 736 02e6 0297      		sbiw r24,2
+ 737 02e8 01F4      		brne .L59
+ 738 02ea 00C0      		rjmp .L54
+ 739               	.L52:
+ 236:src/clock/clock.c ****       gpio_WritePort(CLOCK_HOUR_PORT, dateAndTime.hour);
+ 741               	.LM86:
+ 742 02ec 80E0      		ldi r24,lo8(0)
+ 743 02ee 90E0      		ldi r25,hi8(0)
+ 744 02f0 6091 0000 		lds r22,dateAndTime+2
+ 745 02f4 0E94 0000 		call gpio_WritePort
+ 237:src/clock/clock.c ****       gpio_WritePort(CLOCK_MINUTE_PORT, 0x00);
+ 747               	.LM87:
+ 748 02f8 81E0      		ldi r24,lo8(1)
+ 749 02fa 90E0      		ldi r25,hi8(1)
+ 750 02fc 60E0      		ldi r22,lo8(0)
+ 751 02fe 0E94 0000 		call gpio_WritePort
+ 238:src/clock/clock.c ****       clock_menuState = setHour;
+ 753               	.LM88:
+ 754 0302 81E0      		ldi r24,lo8(1)
+ 755 0304 90E0      		ldi r25,hi8(1)
+ 756 0306 00C0      		rjmp .L60
+ 757               	.L53:
+ 244:src/clock/clock.c ****       gpio_WritePort(CLOCK_MINUTE_PORT, 0x00);
+ 759               	.LM89:
+ 760 0308 81E0      		ldi r24,lo8(1)
+ 761 030a 90E0      		ldi r25,hi8(1)
+ 762 030c 60E0      		ldi r22,lo8(0)
+ 763 030e 0E94 0000 		call gpio_WritePort
+ 245:src/clock/clock.c ****       gpio_WritePort(CLOCK_HOUR_PORT, 0x00);
+ 765               	.LM90:
+ 766 0312 80E0      		ldi r24,lo8(0)
+ 767 0314 90E0      		ldi r25,hi8(0)
+ 768 0316 60E0      		ldi r22,lo8(0)
+ 769 0318 0E94 0000 		call gpio_WritePort
+ 246:src/clock/clock.c ****       clock_menuState = setPWM;
+ 771               	.LM91:
+ 772 031c 82E0      		ldi r24,lo8(2)
+ 773 031e 90E0      		ldi r25,hi8(2)
+ 774               	.L60:
+ 775 0320 9093 0000 		sts (clock_menuState)+1,r25
+ 776 0324 8093 0000 		sts clock_menuState,r24
+ 777 0328 00C0      		rjmp .L59
+ 778               	.L54:
+ 250:src/clock/clock.c ****       gpio_WritePort(CLOCK_MINUTE_PORT, dateAndTime.minute);
+ 780               	.LM92:
+ 781 032a 81E0      		ldi r24,lo8(1)
+ 782 032c 90E0      		ldi r25,hi8(1)
+ 783 032e 6091 0000 		lds r22,dateAndTime+1
+ 784 0332 0E94 0000 		call gpio_WritePort
+ 251:src/clock/clock.c ****       gpio_WritePort(CLOCK_HOUR_PORT, 0x00);
+ 786               	.LM93:
+ 787 0336 80E0      		ldi r24,lo8(0)
+ 788 0338 90E0      		ldi r25,hi8(0)
+ 789 033a 60E0      		ldi r22,lo8(0)
+ 790 033c 0E94 0000 		call gpio_WritePort
+ 252:src/clock/clock.c ****       clock_menuState = setMinute;
+ 792               	.LM94:
+ 793 0340 1092 0000 		sts (clock_menuState)+1,__zero_reg__
+ 794 0344 1092 0000 		sts clock_menuState,__zero_reg__
+ 795               	.L59:
+ 796 0348 82E0      		ldi r24,lo8(3330)
+ 797 034a 9DE0      		ldi r25,hi8(3330)
+ 798               	.LBB65:
+ 799               	.LBB66:
+ 800               	.LBB67:
+ 801               	.LBB68:
+ 803               	.Ltext6:
+ 805               	.LM95:
+ 806 034c 28EC      		ldi r18,lo8(200)
+ 807 034e 30E0      		ldi r19,hi8(200)
+ 808               	.L57:
+ 809 0350 F901      		movw r30,r18
+ 810               	/* #APP */
+ 811               	 ;  105 "/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay_basic.h" 1
+ 812 0352 3197      		1: sbiw r30,1
+ 813 0354 01F4      		brne 1b
+ 814               	 ;  0 "" 2
+ 815               	/* #NOAPP */
+ 816               	.LBE68:
+ 817               	.LBE67:
+ 819               	.Ltext7:
+ 821               	.LM96:
+ 822 0356 0197      		sbiw r24,1
+ 162:/usr/lib/gcc/avr/4.3.3/../../../../avr/include/util/delay.h **** 		while(__ticks)
+ 824               	.LM97:
+ 825 0358 01F4      		brne .L57
+ 826               	/* epilogue start */
+ 827               	.LBE66:
+ 828               	.LBE65:
+ 830               	.Ltext8:
+ 261:src/clock/clock.c **** }
+ 832               	.LM98:
+ 833 035a FF91      		pop r31
+ 834 035c EF91      		pop r30
+ 835 035e BF91      		pop r27
+ 836 0360 AF91      		pop r26
+ 837 0362 9F91      		pop r25
+ 838 0364 8F91      		pop r24
+ 839 0366 7F91      		pop r23
+ 840 0368 6F91      		pop r22
+ 841 036a 5F91      		pop r21
+ 842 036c 4F91      		pop r20
+ 843 036e 3F91      		pop r19
+ 844 0370 2F91      		pop r18
+ 845 0372 0F90      		pop r0
+ 846 0374 0FBE      		out __SREG__,r0
+ 847 0376 0F90      		pop r0
+ 848 0378 1F90      		pop __zero_reg__
+ 849 037a 1895      		reti
+ 857               	.Lscope6:
+ 859               	.global	__vector_13
+ 861               	__vector_13:
  208:src/clock/clock.c **** {
- 815               	.LM93:
- 816               	.LFBB7:
- 817 0324 1F92      		push __zero_reg__
- 818 0326 0F92      		push r0
- 819 0328 0FB6      		in r0,__SREG__
- 820 032a 0F92      		push r0
- 821 032c 1124      		clr __zero_reg__
- 822 032e 2F93      		push r18
- 823 0330 3F93      		push r19
- 824 0332 4F93      		push r20
- 825 0334 5F93      		push r21
- 826 0336 6F93      		push r22
- 827 0338 7F93      		push r23
- 828 033a 8F93      		push r24
- 829 033c 9F93      		push r25
- 830 033e AF93      		push r26
- 831 0340 BF93      		push r27
- 832 0342 EF93      		push r30
- 833 0344 FF93      		push r31
- 834               	/* prologue: Signal */
- 835               	/* frame size = 0 */
+ 863               	.LM99:
+ 864               	.LFBB7:
+ 865 037c 1F92      		push __zero_reg__
+ 866 037e 0F92      		push r0
+ 867 0380 0FB6      		in r0,__SREG__
+ 868 0382 0F92      		push r0
+ 869 0384 1124      		clr __zero_reg__
+ 870 0386 2F93      		push r18
+ 871 0388 3F93      		push r19
+ 872 038a 4F93      		push r20
+ 873 038c 5F93      		push r21
+ 874 038e 6F93      		push r22
+ 875 0390 7F93      		push r23
+ 876 0392 8F93      		push r24
+ 877 0394 9F93      		push r25
+ 878 0396 AF93      		push r26
+ 879 0398 BF93      		push r27
+ 880 039a EF93      		push r30
+ 881 039c FF93      		push r31
+ 882               	/* prologue: Signal */
+ 883               	/* frame size = 0 */
  210:src/clock/clock.c ****    timerCount++;
- 837               	.LM94:
- 838 0346 2091 0000 		lds r18,timerCount.1624
- 839 034a 3091 0000 		lds r19,(timerCount.1624)+1
- 840 034e 2F5F      		subi r18,lo8(-(1))
- 841 0350 3F4F      		sbci r19,hi8(-(1))
- 842 0352 3093 0000 		sts (timerCount.1624)+1,r19
- 843 0356 2093 0000 		sts timerCount.1624,r18
+ 885               	.LM100:
+ 886 039e 2091 0000 		lds r18,timerCount.1624
+ 887 03a2 3091 0000 		lds r19,(timerCount.1624)+1
+ 888 03a6 2F5F      		subi r18,lo8(-(1))
+ 889 03a8 3F4F      		sbci r19,hi8(-(1))
+ 890 03aa 3093 0000 		sts (timerCount.1624)+1,r19
+ 891 03ae 2093 0000 		sts timerCount.1624,r18
  211:src/clock/clock.c ****    if(timerCount >= pwmPeriod)
- 845               	.LM95:
- 846 035a 2436      		cpi r18,100
- 847 035c 3105      		cpc r19,__zero_reg__
- 848 035e 00F0      		brlo .L62
+ 893               	.LM101:
+ 894 03b2 2436      		cpi r18,100
+ 895 03b4 3105      		cpc r19,__zero_reg__
+ 896 03b6 00F0      		brlo .L62
  213:src/clock/clock.c ****       timerCount = 0;
- 850               	.LM96:
- 851 0360 1092 0000 		sts (timerCount.1624)+1,__zero_reg__
- 852 0364 1092 0000 		sts timerCount.1624,__zero_reg__
- 853 0368 00C0      		rjmp .L65
- 854               	.L62:
+ 898               	.LM102:
+ 899 03b8 1092 0000 		sts (timerCount.1624)+1,__zero_reg__
+ 900 03bc 1092 0000 		sts timerCount.1624,__zero_reg__
+ 901 03c0 00C0      		rjmp .L65
+ 902               	.L62:
  217:src/clock/clock.c ****       if(timerCount < pwmDuty)
- 856               	.LM97:
- 857 036a 8091 0000 		lds r24,pwmDuty
- 858 036e 9091 0000 		lds r25,(pwmDuty)+1
- 859 0372 2817      		cp r18,r24
- 860 0374 3907      		cpc r19,r25
- 861 0376 00F4      		brsh .L64
+ 904               	.LM103:
+ 905 03c2 8091 0000 		lds r24,pwmDuty
+ 906 03c6 9091 0000 		lds r25,(pwmDuty)+1
+ 907 03ca 2817      		cp r18,r24
+ 908 03cc 3907      		cpc r19,r25
+ 909 03ce 00F4      		brsh .L64
  219:src/clock/clock.c ****          gpio_WritePort(CLOCK_HOUR_PORT, dateAndTime.hour);
- 863               	.LM98:
- 864 0378 80E0      		ldi r24,lo8(0)
- 865 037a 90E0      		ldi r25,hi8(0)
- 866 037c 6091 0000 		lds r22,dateAndTime+2
- 867 0380 0E94 0000 		call gpio_WritePort
+ 911               	.LM104:
+ 912 03d0 80E0      		ldi r24,lo8(0)
+ 913 03d2 90E0      		ldi r25,hi8(0)
+ 914 03d4 6091 0000 		lds r22,dateAndTime+2
+ 915 03d8 0E94 0000 		call gpio_WritePort
  220:src/clock/clock.c ****          gpio_WritePort(CLOCK_MINUTE_PORT, dateAndTime.minute);
- 869               	.LM99:
- 870 0384 81E0      		ldi r24,lo8(1)
- 871 0386 90E0      		ldi r25,hi8(1)
- 872 0388 6091 0000 		lds r22,dateAndTime+1
- 873 038c 00C0      		rjmp .L66
- 874               	.L64:
+ 917               	.LM105:
+ 918 03dc 81E0      		ldi r24,lo8(1)
+ 919 03de 90E0      		ldi r25,hi8(1)
+ 920 03e0 6091 0000 		lds r22,dateAndTime+1
+ 921 03e4 00C0      		rjmp .L66
+ 922               	.L64:
  224:src/clock/clock.c ****          gpio_WritePort(CLOCK_HOUR_PORT, 0x00);
- 876               	.LM100:
- 877 038e 80E0      		ldi r24,lo8(0)
- 878 0390 90E0      		ldi r25,hi8(0)
- 879 0392 60E0      		ldi r22,lo8(0)
- 880 0394 0E94 0000 		call gpio_WritePort
+ 924               	.LM106:
+ 925 03e6 80E0      		ldi r24,lo8(0)
+ 926 03e8 90E0      		ldi r25,hi8(0)
+ 927 03ea 60E0      		ldi r22,lo8(0)
+ 928 03ec 0E94 0000 		call gpio_WritePort
  225:src/clock/clock.c ****          gpio_WritePort(CLOCK_MINUTE_PORT, 0x00);
- 882               	.LM101:
- 883 0398 81E0      		ldi r24,lo8(1)
- 884 039a 90E0      		ldi r25,hi8(1)
- 885 039c 60E0      		ldi r22,lo8(0)
- 886               	.L66:
- 887 039e 0E94 0000 		call gpio_WritePort
- 888               	.L65:
- 889               	/* epilogue start */
+ 930               	.LM107:
+ 931 03f0 81E0      		ldi r24,lo8(1)
+ 932 03f2 90E0      		ldi r25,hi8(1)
+ 933 03f4 60E0      		ldi r22,lo8(0)
+ 934               	.L66:
+ 935 03f6 0E94 0000 		call gpio_WritePort
+ 936               	.L65:
+ 937               	/* epilogue start */
  228:src/clock/clock.c **** }
- 891               	.LM102:
- 892 03a2 FF91      		pop r31
- 893 03a4 EF91      		pop r30
- 894 03a6 BF91      		pop r27
- 895 03a8 AF91      		pop r26
- 896 03aa 9F91      		pop r25
- 897 03ac 8F91      		pop r24
- 898 03ae 7F91      		pop r23
- 899 03b0 6F91      		pop r22
- 900 03b2 5F91      		pop r21
- 901 03b4 4F91      		pop r20
- 902 03b6 3F91      		pop r19
- 903 03b8 2F91      		pop r18
- 904 03ba 0F90      		pop r0
- 905 03bc 0FBE      		out __SREG__,r0
- 906 03be 0F90      		pop r0
- 907 03c0 1F90      		pop __zero_reg__
- 908 03c2 1895      		reti
- 913               	.Lscope7:
- 914               		.lcomm clock_menuState,2
- 915               		.data
- 918               	pwmDuty:
- 919 0000 1400      		.word	20
- 920               		.lcomm timerCount.1624,2
- 921               		.lcomm dateAndTime,3
- 922               		.lcomm timerStoppedCounter,1
- 929               		.text
- 931               	.Letext0:
+ 939               	.LM108:
+ 940 03fa FF91      		pop r31
+ 941 03fc EF91      		pop r30
+ 942 03fe BF91      		pop r27
+ 943 0400 AF91      		pop r26
+ 944 0402 9F91      		pop r25
+ 945 0404 8F91      		pop r24
+ 946 0406 7F91      		pop r23
+ 947 0408 6F91      		pop r22
+ 948 040a 5F91      		pop r21
+ 949 040c 4F91      		pop r20
+ 950 040e 3F91      		pop r19
+ 951 0410 2F91      		pop r18
+ 952 0412 0F90      		pop r0
+ 953 0414 0FBE      		out __SREG__,r0
+ 954 0416 0F90      		pop r0
+ 955 0418 1F90      		pop __zero_reg__
+ 956 041a 1895      		reti
+ 961               	.Lscope7:
+ 962               		.lcomm clock_menuState,2
+ 963               		.data
+ 966               	pwmDuty:
+ 967 0000 1400      		.word	20
+ 968               		.lcomm timerCount.1624,2
+ 969               		.lcomm dateAndTime,3
+ 970               		.lcomm timerStoppedCounter,1
+ 977               		.text
+ 979               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 clock.c
-     /tmp/ccUSYvpm.s:2      *ABS*:0000003f __SREG__
-     /tmp/ccUSYvpm.s:3      *ABS*:0000003e __SP_H__
-     /tmp/ccUSYvpm.s:4      *ABS*:0000003d __SP_L__
-     /tmp/ccUSYvpm.s:5      *ABS*:00000000 __tmp_reg__
-     /tmp/ccUSYvpm.s:6      *ABS*:00000001 __zero_reg__
-     /tmp/ccUSYvpm.s:134    .text:00000000 clock_init
-     /tmp/ccUSYvpm.s:920    .bss:00000004 dateAndTime
-     /tmp/ccUSYvpm.s:264    .text:0000008a clock_halt
-     /tmp/ccUSYvpm.s:921    .bss:00000007 timerStoppedCounter
-     /tmp/ccUSYvpm.s:298    .text:000000a6 clock_restart
-     /tmp/ccUSYvpm.s:338    .text:000000ce __vector_9
-     /tmp/ccUSYvpm.s:419    .text:00000136 __vector_1
+     /tmp/cctrAwNd.s:2      *ABS*:0000003f __SREG__
+     /tmp/cctrAwNd.s:3      *ABS*:0000003e __SP_H__
+     /tmp/cctrAwNd.s:4      *ABS*:0000003d __SP_L__
+     /tmp/cctrAwNd.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/cctrAwNd.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/cctrAwNd.s:134    .text:00000000 clock_init
+     /tmp/cctrAwNd.s:968    .bss:00000004 dateAndTime
+     /tmp/cctrAwNd.s:264    .text:0000008a clock_halt
+     /tmp/cctrAwNd.s:969    .bss:00000007 timerStoppedCounter
+     /tmp/cctrAwNd.s:298    .text:000000a6 clock_restart
+     /tmp/cctrAwNd.s:338    .text:000000ce __vector_9
+     /tmp/cctrAwNd.s:419    .text:00000136 __vector_2
                              .bss:00000000 clock_menuState
-     /tmp/ccUSYvpm.s:529    .text:000001aa __vector_2
-     /tmp/ccUSYvpm.s:918    .data:00000000 pwmDuty
-     /tmp/ccUSYvpm.s:813    .text:00000324 __vector_13
-     /tmp/ccUSYvpm.s:914    .bss:00000002 timerCount.1624
+     /tmp/cctrAwNd.s:966    .data:00000000 pwmDuty
+     /tmp/cctrAwNd.s:703    .text:000002b0 __vector_1
+     /tmp/cctrAwNd.s:861    .text:0000037c __vector_13
+     /tmp/cctrAwNd.s:962    .bss:00000002 timerCount.1624
 
 UNDEFINED SYMBOLS
 __do_copy_data

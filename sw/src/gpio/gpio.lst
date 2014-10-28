@@ -444,18 +444,18 @@
  514               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 gpio.c
-     /tmp/ccaYPzRk.s:2      *ABS*:0000003f __SREG__
-     /tmp/ccaYPzRk.s:3      *ABS*:0000003e __SP_H__
-     /tmp/ccaYPzRk.s:4      *ABS*:0000003d __SP_L__
-     /tmp/ccaYPzRk.s:5      *ABS*:00000000 __tmp_reg__
-     /tmp/ccaYPzRk.s:6      *ABS*:00000001 __zero_reg__
-     /tmp/ccaYPzRk.s:128    .text:00000000 gpio_WriteChannel
-     /tmp/ccaYPzRk.s:496    .data:00000000 gpio_RegisterAdress_as
-     /tmp/ccaYPzRk.s:203    .text:00000062 gpio_ToggleChannel
-     /tmp/ccaYPzRk.s:249    .text:00000094 gpio_ReadChannel
-     /tmp/ccaYPzRk.s:296    .text:000000c6 gpio_ReadPort
-     /tmp/ccaYPzRk.s:328    .text:000000e2 gpio_WritePort
-     /tmp/ccaYPzRk.s:358    .text:000000fe gpio_init
+     /tmp/ccj9bLKj.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccj9bLKj.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccj9bLKj.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccj9bLKj.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccj9bLKj.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccj9bLKj.s:128    .text:00000000 gpio_WriteChannel
+     /tmp/ccj9bLKj.s:496    .data:00000000 gpio_RegisterAdress_as
+     /tmp/ccj9bLKj.s:203    .text:00000062 gpio_ToggleChannel
+     /tmp/ccj9bLKj.s:249    .text:00000094 gpio_ReadChannel
+     /tmp/ccj9bLKj.s:296    .text:000000c6 gpio_ReadPort
+     /tmp/ccj9bLKj.s:328    .text:000000e2 gpio_WritePort
+     /tmp/ccj9bLKj.s:358    .text:000000fe gpio_init
                              .bss:00000000 localConfig
 
 UNDEFINED SYMBOLS
