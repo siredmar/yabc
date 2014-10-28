@@ -54,6 +54,5 @@ typedef enum
 void clock_init(void);
 void clock_halt(void);
 void clock_restart(void);
-void clock_displayTime(const clockType time);
 /* ************************************ E O F *************************************************** */
 #endif /* _CLOCK_H_ */

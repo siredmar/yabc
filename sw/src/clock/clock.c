@@ -23,7 +23,20 @@
 /* ------------------------------------ DEFINES ------------------------------------------------- */
 #define CLOCK_HOUR_PORT GPIO_PORTA
 #define CLOCK_MINUTE_PORT GPIO_PORTB
+#define CLOCK_PWM_PERIOD (100U)
+#define CLOCK_PWM_DUTY (20U)
+#define CLOCK_PWM_DUTY_INC (20U)
+
 /* ------------------------------------ TYPE DEFINITIONS ---------------------------------------- */
+static uint16 pwmPeriod = CLOCK_PWM_PERIOD;
+static uint16 pwmDuty = CLOCK_PWM_DUTY;
+
+typedef enum
+{
+   setMinute = 0,
+   setHour,
+   setPWM
+}clock_menuStateType;
 
 enum
 {
@@ -45,11 +58,12 @@ enum
 /* ------------------------------------ PRIVATE VARIABLES --------------------------------------- */
 static clockType dateAndTime;
 static uint8 timerStoppedCounter;   // prevention of accidently restarting timer2
-
+static clock_menuStateType clock_menuState = setMinute;
 /* ------------------------------------ PROTOTYPES ---------------------------------------------- */
 static void clock_delay(uint16 ms);
 static void updateDateAndTime(void);
-
+static void startBlinkTimer(void);
+static void stopBlinkTimer(void);
 
 /* ------------------------------------ GLOBAL FUNCTIONS ---------------------------------------- */
 
@@ -80,8 +94,7 @@ void clock_init(void)
    TIMSK2 |= (1<<OCIE2A);                  // Enable Compare Interrupt
 
    EIMSK = 0x03;
-
-   clock_displayTime(dateAndTime);
+   startBlinkTimer();
 }
 
 /* ---------------------------------------------------------------------------------------------- *\
@@ -114,16 +127,6 @@ void clock_restart(void)
    }
 }
 
-
-/* ---------------------------------------------------------------------------------------------- *\
- * T.B.F.
-\* ---------------------------------------------------------------------------------------------- */
-void clock_displayTime(const clockType time)
-{
-      gpio_WritePort(CLOCK_HOUR_PORT, time.hour);
-      gpio_WritePort(CLOCK_MINUTE_PORT, time.minute);
-}
-
 /* ------------------------------------ PRIVATE FUNCTIONS --------------------------------------- */
 
 /* ---------------------------------------------------------------------------------------------- *\
@@ -142,10 +145,12 @@ static void clock_delay(uint16 ms)
 \* ---------------------------------------------------------------------------------------------- */
 static void updateDateAndTime(void)
 {
+   //   uint8 timeChanged = 0;
    if (dateAndTime.second > 59)
    {
       dateAndTime.second = 0;
       dateAndTime.minute++;
+      //      timeChanged = 1;
    }
    if (dateAndTime.minute > 59)
    {
@@ -156,10 +161,37 @@ static void updateDateAndTime(void)
    {
       dateAndTime.hour = 0;
    }
-   clock_displayTime(dateAndTime);
+
 }
 
 /* ---------------------------------------------------------------------------------------------- *\
+ * T.B.F.
+\* ---------------------------------------------------------------------------------------------- */
+void startBlinkTimer(void)
+{
+   /* Timer 1 for blinking */
+   // 0xF42; // preload with 0x04E2 = 125 = 0.01 s bei 8 MHz, 1 Clockdiv
+   TCCR1B = 0x01; //CPU-Takt/1
+   TCCR1A = 0x00; //Register zuruecksetzen
+   TCCR1B |= (1<<WGM12); //Zuruecksetzen des Counters aktivieren
+
+   OCR1A = 125;
+   TIMSK1 |= (1<<OCIE1A); //Interrupt an Kanal A aktivieren
+}
+
+/* ---------------------------------------------------------------------------------------------- *\
+ * T.B.F.
+\* ---------------------------------------------------------------------------------------------- */
+void stopBlinkTimer(void)
+{
+   TIMSK1 = 0;             /* switch off all timer0 interrupts */
+   TCCR1B = 0;             /* switch timer off */
+   TCCR1A = 0x00;          /* reset timer mode */
+   TCNT1 = 0;              /* reset counter register */
+}
+
+
+/* -------------------------------------------------------------------------------------------- *\
  * T.B.F.
 \* ---------------------------------------------------------------------------------------------- */
 ISR(TIMER2_COMPA_vect)
@@ -172,22 +204,92 @@ ISR(TIMER2_COMPA_vect)
 
 }
 
-/* TODO: make cool and awesome state machine for:
-         * setting hour
-         * setting minute
-         * dimming the shit out of hell
- */
+ISR(TIMER1_COMPA_vect)
+{
+   static uint16 timerCount = 0;
+   timerCount++;
+   if(timerCount >= pwmPeriod)
+   {
+      timerCount = 0;
+   }
+   else
+   {
+      if(timerCount < pwmDuty)
+      {
+         gpio_WritePort(CLOCK_HOUR_PORT, dateAndTime.hour);
+         gpio_WritePort(CLOCK_MINUTE_PORT, dateAndTime.minute);
+      }
+      else
+      {
+         gpio_WritePort(CLOCK_HOUR_PORT, 0x00);
+         gpio_WritePort(CLOCK_MINUTE_PORT, 0x00);
+      }
+   }
+}
+
 ISR(INT0_vect)
 {
-   dateAndTime.minute++;
-   updateDateAndTime();
+   switch(clock_menuState)
+   {
+   case setMinute:
+
+      clock_menuState = setHour;
+      break;
+
+   case setHour:
+
+      clock_menuState = setPWM;
+      break;
+
+   case setPWM:
+
+      clock_menuState = setMinute;
+      break;
+
+   default:
+
+      break;
+
+   }
    _delay_ms(333);
 }
 
 ISR(INT1_vect)
 {
-   dateAndTime.hour++;
-   updateDateAndTime();
+   clock_halt();
+
+   switch(clock_menuState)
+   {
+   case setMinute:
+      gpio_WritePort(CLOCK_MINUTE_PORT, dateAndTime.minute);
+      gpio_WritePort(CLOCK_HOUR_PORT, dateAndTime.hour);
+      dateAndTime.minute++;
+      updateDateAndTime();
+      break;
+
+   case setHour:
+      gpio_WritePort(CLOCK_MINUTE_PORT, dateAndTime.minute);
+      gpio_WritePort(CLOCK_HOUR_PORT, dateAndTime.hour);
+      dateAndTime.hour++;
+      updateDateAndTime();
+      break;
+
+   case setPWM:
+
+      pwmDuty = pwmDuty + CLOCK_PWM_DUTY_INC;
+
+      if(pwmDuty > CLOCK_PWM_PERIOD)
+         pwmDuty = CLOCK_PWM_DUTY;
+
+
+      break;
+
+   default:
+
+      break;
+
+   }
+   clock_restart();
    _delay_ms(333);
 }
 /* ************************************ E O F *************************************************** */

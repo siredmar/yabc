@@ -10,8 +10,6 @@ int main(void)
    gpio_init();
    clock_init();
    sei();
-//   gpio_WritePort(GPIO_PORTA, 0b1001001);
-//   gpio_WritePort(GPIO_PORTB, 0b01010101);
    while(1)
    {
    }
