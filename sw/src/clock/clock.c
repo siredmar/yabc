@@ -145,12 +145,10 @@ static void clock_delay(uint16 ms)
 \* ---------------------------------------------------------------------------------------------- */
 static void updateDateAndTime(void)
 {
-   //   uint8 timeChanged = 0;
    if (dateAndTime.second > 59)
    {
       dateAndTime.second = 0;
       dateAndTime.minute++;
-      //      timeChanged = 1;
    }
    if (dateAndTime.minute > 59)
    {
