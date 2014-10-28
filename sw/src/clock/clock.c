@@ -72,9 +72,9 @@ static void stopBlinkTimer(void);
 \* ---------------------------------------------------------------------------------------------- */
 void clock_init(void)
 {
-   dateAndTime.second = 0;                    /* set initial time and date  */
-   dateAndTime.minute = 0;
-   dateAndTime.hour   = 0;
+   dateAndTime.second = 1;                    /* set initial time and date  */
+   dateAndTime.minute = 1;
+   dateAndTime.hour   = 1;
    /* --- timer init ---  */
 
    TIMSK2 = 0;                             // disable all timer2 interrupts

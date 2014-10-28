@@ -444,18 +444,18 @@
  514               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 gpio.c
-     /tmp/ccuW168D.s:2      *ABS*:0000003f __SREG__
-     /tmp/ccuW168D.s:3      *ABS*:0000003e __SP_H__
-     /tmp/ccuW168D.s:4      *ABS*:0000003d __SP_L__
-     /tmp/ccuW168D.s:5      *ABS*:00000000 __tmp_reg__
-     /tmp/ccuW168D.s:6      *ABS*:00000001 __zero_reg__
-     /tmp/ccuW168D.s:128    .text:00000000 gpio_WriteChannel
-     /tmp/ccuW168D.s:496    .data:00000000 gpio_RegisterAdress_as
-     /tmp/ccuW168D.s:203    .text:00000062 gpio_ToggleChannel
-     /tmp/ccuW168D.s:249    .text:00000094 gpio_ReadChannel
-     /tmp/ccuW168D.s:296    .text:000000c6 gpio_ReadPort
-     /tmp/ccuW168D.s:328    .text:000000e2 gpio_WritePort
-     /tmp/ccuW168D.s:358    .text:000000fe gpio_init
+     /tmp/ccMD0YlE.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccMD0YlE.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccMD0YlE.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccMD0YlE.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccMD0YlE.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccMD0YlE.s:128    .text:00000000 gpio_WriteChannel
+     /tmp/ccMD0YlE.s:496    .data:00000000 gpio_RegisterAdress_as
+     /tmp/ccMD0YlE.s:203    .text:00000062 gpio_ToggleChannel
+     /tmp/ccMD0YlE.s:249    .text:00000094 gpio_ReadChannel
+     /tmp/ccMD0YlE.s:296    .text:000000c6 gpio_ReadPort
+     /tmp/ccMD0YlE.s:328    .text:000000e2 gpio_WritePort
+     /tmp/ccMD0YlE.s:358    .text:000000fe gpio_init
                              .bss:00000000 localConfig
 
 UNDEFINED SYMBOLS
